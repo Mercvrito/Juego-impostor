@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Palabras e Impostor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Juego de Palabras e Impostor</h1>
+    
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="main-screen" class="screen active">
+            <h2>¿Qué quieres hacer?</h2>
+            <div class="btn-container">
+                <button id="create-btn" class="btn">Crear Partida</button>
+                <button id="join-btn" class="btn btn-secondary">Unirse a Partida</button>
+            </div>
+        </div>
+        
+        <!-- Pantalla de crear partida -->
+        <div id="create-screen" class="screen">
+            <h2>Crear Partida</h2>
+            <div class="input-group">
+                <label for="host-name">Tu nombre:</label>
+                <input type="text" id="host-name" placeholder="Ingresa tu nombre" maxlength="15">
+            </div>
+            <button id="create-game-btn" class="btn">Crear Sala</button>
+            <button id="back-to-main-btn-1" class="btn btn-danger">Volver</button>
+        </div>
+        
+        <!-- Pantalla de código de sala -->
+        <div id="lobby-screen" class="screen">
+            <h2>Sala de Espera</h2>
+            <div class="lobby-header">
+                <div>
+                    <p>Comparte este código con los jugadores:</p>
+                    <div id="room-code" class="code-display">0000</div>
+                </div>
+                <div class="players-count">
+                    <span id="players-count">0</span> jugadores
+                </div>
+            </div>
+            
+            <h3>Jugadores en la sala:</h3>
+            <ul id="player-list" class="player-list"></ul>
+            
+            <div class="btn-container">
+                <button id="start-game-btn" class="btn">Iniciar Partida</button>
+                <button id="leave-lobby-btn" class="btn btn-danger">Salir</button>
+            </div>
+        </div>
+        
+        <!-- Pantalla de unirse a partida -->
+        <div id="join-screen" class="screen">
+            <h2>Unirse a Partida</h2>
+            <div class="input-group">
+                <label for="player-name">Tu nombre:</label>
+                <input type="text" id="player-name" placeholder="Ingresa tu nombre" maxlength="15">
+            </div>
+            <div class="input-group">
+                <label for="room-code-input">Código de sala:</label>
+                <input type="text" id="room-code-input" placeholder="Ingresa el código de sala" maxlength="4">
+            </div>
+            <button id="join-game-btn" class="btn">Unirse</button>
+            <button id="back-to-main-btn-2" class="btn btn-danger">Volver</button>
+        </div>
+        
+        <!-- Pantalla de juego -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="room-code-info">
+                    <span class="code-label">Código de sala:</span>
+                    <div id="game-room-code" class="code-display-small">0000</div>
+                </div>
+                <div class="round-info">
+                    Ronda <span id="round-number">1</span>
+                </div>
+            </div>
+            
+            <div id="word-display" class="word-display">
+                Esperando palabra...
+            </div>
+            
+            <h3>Jugadores conectados:</h3>
+            <ul id="game-player-list" class="player-list"></ul>
+            
+            <!-- SOLO EL HOST VE ESTOS CONTROLES -->
+            <div id="host-controls" class="btn-container">
+                <button id="new-word-btn" class="btn">Nueva Palabra</button>
+            </div>
+            
+            <div class="btn-container">
+                <button id="leave-game-btn" class="btn btn-danger">Abandonar Partida</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification">
+        ¡Notificación!
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
