@@ -1,104 +1,142 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UNDERCOVER '88">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#00ff00">
+<meta name="msapplication-TileColor" content="#00ff00">
+<meta name="msapplication-config" content="/browserconfig.xml">
+
+<!-- Icons -->
+<link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>">
+
+<!-- Manifest -->
+<link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Palabras e Impostor</title>
+    <title>UNDERCOVER '88</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Juego de Palabras e Impostor</h1>
+    <!-- Efecto de scanlines -->
+    <div class="scanlines"></div>
+    <div class="film-grain"></div>
+    
+    <div class="retro-border">
+        <div class="crinkle-effect"></div>
+    </div>
+
+    <div class="header">
+        <div class="logo-container">
+            <div class="retro-logo">
+                <div class="logo-text">UNDERCOVER</div>
+                <div class="year-badge">'88</div>
+            </div>
+        </div>
+        <p class="tagline">¿QUIÉN ES EL IMPOSTOR?</p>
+        <div class="static-noise"></div>
+    </div>
     
     <div class="container">
         <!-- Pantalla de inicio -->
         <div id="main-screen" class="screen active">
-            <h2>¿Qué quieres hacer?</h2>
+            <div class="vignette"></div>
+            <h2>¿QUÉ QUIERES HACER?</h2>
             <div class="btn-container">
-                <button id="create-btn" class="btn">Crear Partida</button>
-                <button id="join-btn" class="btn btn-secondary">Unirse a Partida</button>
+                <button id="create-btn" class="btn retro-btn">CREAR PARTIDA</button>
+                <button id="join-btn" class="btn retro-btn secondary">UNIRSE A PARTIDA</button>
             </div>
         </div>
         
         <!-- Pantalla de crear partida -->
         <div id="create-screen" class="screen">
-            <h2>Crear Partida</h2>
+            <div class="vignette"></div>
+            <h2>CREAR PARTIDA</h2>
             <div class="input-group">
-                <label for="host-name">Tu nombre:</label>
-                <input type="text" id="host-name" placeholder="Ingresa tu nombre" maxlength="15">
+                <label for="host-name">TU NOMBRE:</label>
+                <input type="text" id="host-name" placeholder="INGRESA TU NOMBRE" maxlength="15" class="retro-input">
             </div>
-            <button id="create-game-btn" class="btn">Crear Sala</button>
-            <button id="back-to-main-btn-1" class="btn btn-danger">Volver</button>
+            <button id="create-game-btn" class="btn retro-btn">CREAR SALA</button>
+            <button id="back-to-main-btn-1" class="btn retro-btn danger">VOLVER</button>
         </div>
         
-        <!-- Pantalla de código de sala -->
+        <!-- Pantalla de lobby -->
         <div id="lobby-screen" class="screen">
-            <h2>Sala de Espera</h2>
+            <div class="vignette"></div>
+            <h2>SALA DE ESPERA</h2>
             <div class="lobby-header">
                 <div>
-                    <p>Comparte este código con los jugadores:</p>
+                    <p>COMPARTE ESTE CÓDIGO CON LOS JUGADORES:</p>
                     <div id="room-code" class="code-display">0000</div>
                 </div>
                 <div class="players-count">
-                    <span id="players-count">0</span> jugadores
+                    <span id="players-count">0</span> JUGADORES
                 </div>
             </div>
             
-            <h3>Jugadores en la sala:</h3>
+            <h3>JUGADORES EN LA SALA:</h3>
             <ul id="player-list" class="player-list"></ul>
             
             <div class="btn-container">
-                <button id="start-game-btn" class="btn">Iniciar Partida</button>
-                <button id="leave-lobby-btn" class="btn btn-danger">Salir</button>
+                <button id="start-game-btn" class="btn retro-btn">INICIAR PARTIDA</button>
+                <button id="leave-lobby-btn" class="btn retro-btn danger">SALIR</button>
             </div>
         </div>
         
         <!-- Pantalla de unirse a partida -->
         <div id="join-screen" class="screen">
-            <h2>Unirse a Partida</h2>
+            <div class="vignette"></div>
+            <h2>UNIRSE A PARTIDA</h2>
             <div class="input-group">
-                <label for="player-name">Tu nombre:</label>
-                <input type="text" id="player-name" placeholder="Ingresa tu nombre" maxlength="15">
+                <label for="player-name">TU NOMBRE:</label>
+                <input type="text" id="player-name" placeholder="INGRESA TU NOMBRE" maxlength="15" class="retro-input">
             </div>
             <div class="input-group">
-                <label for="room-code-input">Código de sala:</label>
-                <input type="text" id="room-code-input" placeholder="Ingresa el código de sala" maxlength="4">
+                <label for="room-code-input">CÓDIGO DE SALA:</label>
+                <input type="text" id="room-code-input" placeholder="INGRESA EL CÓDIGO" maxlength="4" class="retro-input">
             </div>
-            <button id="join-game-btn" class="btn">Unirse</button>
-            <button id="back-to-main-btn-2" class="btn btn-danger">Volver</button>
+            <button id="join-game-btn" class="btn retro-btn">UNIRSE</button>
+            <button id="back-to-main-btn-2" class="btn retro-btn danger">VOLVER</button>
         </div>
         
         <!-- Pantalla de juego -->
         <div id="game-screen" class="screen">
+            <div class="vignette"></div>
             <div class="game-header">
                 <div class="room-code-info">
-                    <span class="code-label">Código de sala:</span>
+                    <span class="code-label">CÓDIGO DE SALA:</span>
                     <div id="game-room-code" class="code-display-small">0000</div>
                 </div>
                 <div class="round-info">
-                    Ronda <span id="round-number">1</span>
+                    RONDA <span id="round-number">1</span>
                 </div>
             </div>
             
             <div id="word-display" class="word-display">
-                Esperando palabra...
+                ESPERANDO PALABRA...
             </div>
             
-            <h3>Jugadores conectados:</h3>
+            <h3>JUGADORES CONECTADOS:</h3>
             <ul id="game-player-list" class="player-list"></ul>
             
             <!-- SOLO EL HOST VE ESTOS CONTROLES -->
             <div id="host-controls" class="btn-container">
-                <button id="new-word-btn" class="btn">Nueva Palabra</button>
+                <button id="new-word-btn" class="btn retro-btn">NUEVA PALABRA</button>
             </div>
             
             <div class="btn-container">
-                <button id="leave-game-btn" class="btn btn-danger">Abandonar Partida</button>
+                <button id="leave-game-btn" class="btn retro-btn danger">ABANDONAR PARTIDA</button>
             </div>
         </div>
     </div>
     
-    <div id="notification" class="notification">
-        ¡Notificación!
+    <div id="notification" class="notification retro-notification">
+        ¡NOTIFICACIÓN!
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

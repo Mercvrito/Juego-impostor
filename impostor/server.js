@@ -23,6 +23,31 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// ✅ NUEVO: Servir manifest.json para PWA
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+// ✅ NUEVO: Servir service-worker.js para PWA
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
+// ✅ NUEVO: Servir iconos para PWA (opcional, pero recomendado)
+app.get('/icon-192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'icon-192.png'));
+});
+
+app.get('/icon-512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'icon-512.png'));
+});
+
+// ✅ NUEVO: Ruta de fallback para SPA (Single Page Application)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Cargar palabras desde el archivo
 function cargarPalabras() {
     try {
@@ -62,7 +87,7 @@ function generateRoomCode() {
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-    console.log('Usuario conectado:', socket.id);
+    console.log('✅ Usuario conectado:', socket.id);
 
     // Crear nueva sala
     socket.on('create-room', (playerName) => {
@@ -86,7 +111,7 @@ io.on('connection', (socket) => {
         socket.emit('room-created', roomCode);
         io.to(roomCode).emit('players-updated', room.players);
         
-        console.log(`Sala creada: ${roomCode} por ${playerName}`);
+        console.log(`🎮 Sala creada: ${roomCode} por ${playerName}`);
     });
 
     // Unirse a sala existente
@@ -95,12 +120,18 @@ io.on('connection', (socket) => {
         const room = rooms.get(roomCode);
         
         if (!room) {
-            socket.emit('error', 'Sala no encontrada');
+            socket.emit('error', '❌ Sala no encontrada');
             return;
         }
         
         if (room.isGameActive) {
-            socket.emit('error', 'La partida ya ha comenzado');
+            socket.emit('error', '🚫 La partida ya ha comenzado');
+            return;
+        }
+        
+        // ✅ MEJORA: Verificar nombre duplicado
+        if (room.players.some(player => player.name === playerName)) {
+            socket.emit('error', '⚠️ Ya existe un jugador con ese nombre');
             return;
         }
         
@@ -114,7 +145,7 @@ io.on('connection', (socket) => {
         io.to(roomCode).emit('players-updated', room.players);
         socket.emit('joined-room', roomCode);
         
-        console.log(`${playerName} se unió a la sala ${roomCode}`);
+        console.log(`👤 ${playerName} se unió a la sala ${roomCode}`);
     });
 
     // Iniciar partida
@@ -123,8 +154,9 @@ io.on('connection', (socket) => {
         if (room && room.players.length >= 2) {
             room.isGameActive = true;
             startNewRound(room);
+            console.log(`🎯 Partida iniciada en sala ${roomCode}`);
         } else {
-            socket.emit('error', 'Se necesitan al menos 2 jugadores para comenzar');
+            socket.emit('error', '👥 Se necesitan al menos 2 jugadores para comenzar');
         }
     });
 
@@ -136,18 +168,19 @@ io.on('connection', (socket) => {
             if (player && player.isHost) {
                 startNewRound(room);
                 io.to(roomCode).emit('new-word-changed', { 
-                    message: 'El host ha cambiado la palabra',
+                    message: '🔄 El host ha cambiado la palabra',
                     roundNumber: room.roundNumber 
                 });
+                console.log(`🔤 Nueva palabra en sala ${roomCode}`);
             } else {
-                socket.emit('error', 'Solo el host puede cambiar la palabra');
+                socket.emit('error', '👑 Solo el host puede cambiar la palabra');
             }
         }
     });
 
     // Manejar desconexión
     socket.on('disconnect', () => {
-        console.log('Usuario desconectado:', socket.id);
+        console.log('❌ Usuario desconectado:', socket.id);
         
         for (let [roomCode, room] of rooms) {
             const playerIndex = room.players.findIndex(p => p.id === socket.id);
@@ -157,14 +190,20 @@ io.on('connection', (socket) => {
                 
                 if (room.players.length === 0) {
                     rooms.delete(roomCode);
-                    console.log(`Sala ${roomCode} eliminada por estar vacía`);
+                    console.log(`🗑️ Sala ${roomCode} eliminada por estar vacía`);
                 } else {
+                    // ✅ MEJORA: Asignar nuevo host si el anterior se fue
                     if (!room.players.some(p => p.isHost)) {
                         room.players[0].isHost = true;
+                        io.to(roomCode).emit('players-updated', room.players);
+                        io.to(roomCode).emit('new-word-changed', {
+                            message: `👑 ${room.players[0].name} es ahora el host`,
+                            roundNumber: room.roundNumber
+                        });
                     }
                     
                     io.to(roomCode).emit('players-updated', room.players);
-                    io.to(roomCode).emit('player-left', playerName);
+                    io.to(roomCode).emit('player-left', `${playerName} ha abandonado la sala`);
                 }
                 break;
             }
@@ -177,7 +216,7 @@ io.on('connection', (socket) => {
         room.impostorIndex = Math.floor(Math.random() * room.players.length);
         room.roundNumber++;
         
-        console.log(`Ronda ${room.roundNumber} - Palabra: ${room.currentWord} - Impostor: ${room.impostorIndex}`);
+        console.log(`🔄 Ronda ${room.roundNumber} - Palabra: ${room.currentWord} - Impostor: ${room.impostorIndex}`);
         
         room.players.forEach((player, index) => {
             const isImpostor = index === room.impostorIndex;
@@ -202,4 +241,6 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
     console.log(`📚 Diccionario cargado: ${words.length} palabras disponibles`);
+    console.log(`📱 PWA habilitada: /manifest.json`);
+    console.log(`⚙️ Service Worker: /service-worker.js`);
 });
