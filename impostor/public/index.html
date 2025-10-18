@@ -1,3 +1,5 @@
+[file name]: index.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,18 +14,19 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
 
 <!-- Theme Color para navegadores móviles -->
-<meta name="theme-color" content="#00ff00">
-<meta name="msapplication-TileColor" content="#00ff00">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="msapplication-TileColor" content="#0a0a0a">
 
 <!-- PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="UNDERCOVER '88">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#00ff00">
-<meta name="msapplication-TileColor" content="#00ff00">
-<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="msapplication-TileColor" content="#0a0a0a">
 
+<!-- Prevenir fondo blanco en iOS -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <!-- Manifest -->
 <link rel="manifest" href="/manifest.json">
@@ -41,6 +44,11 @@
     <div class="retro-border">
         <div class="crinkle-effect"></div>
     </div>
+
+    <!-- Botón de pantalla completa -->
+    <button id="fullscreen-btn" class="fullscreen-btn" title="Pantalla completa">
+        <span class="fullscreen-icon">⛶</span>
+    </button>
 
     <div class="header">
         <div class="logo-container">
@@ -145,12 +153,23 @@
             </div>
         </div>
     </div>
-    
-    <div id="notification" class="notification retro-notification">
-        ¡NOTIFICACIÓN!
+
+    <!-- Modal para instrucciones de pantalla completa en iOS -->
+    <div id="ios-fullscreen-modal" class="modal">
+        <div class="modal-content">
+            <h3>📱 Pantalla Completa en iOS</h3>
+            <p>Para disfrutar de la experiencia completa:</p>
+            <ol>
+                <li>Toca el botón <strong>Compartir</strong> 📤</li>
+                <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong></li>
+                <li>¡Listo! La app se abrirá en pantalla completa</li>
+            </ol>
+            <button id="close-modal-btn" class="btn retro-btn">ENTENDIDO</button>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
 </body>
 </html>
+[file content end]

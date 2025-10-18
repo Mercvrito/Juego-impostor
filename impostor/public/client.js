@@ -1,3 +1,5 @@
+[file name]: client.js
+[file content begin]
 // Variables globales
 let currentScreen = 'main-screen';
 let players = [];
@@ -25,7 +27,11 @@ const roundNumberDisplay = document.getElementById('round-number');
 const gameRoomCodeDisplay = document.getElementById('game-room-code');
 
 const hostControls = document.getElementById('host-controls');
-const notification = document.getElementById('notification');
+
+// Elementos para pantalla completa
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const iosModal = document.getElementById('ios-fullscreen-modal');
+const closeModalBtn = document.getElementById('close-modal-btn');
 
 // Inicializar socket
 function initializeSocket() {
@@ -42,7 +48,7 @@ function initializeSocket() {
         gameRoomCodeDisplay.textContent = code;
         isHost = true;
         showScreen('lobby-screen');
-        showNotification('Sala creada exitosamente');
+        console.log('Sala creada exitosamente');
     });
     
     socket.on('joined-room', (code) => {
@@ -51,7 +57,7 @@ function initializeSocket() {
         gameRoomCodeDisplay.textContent = code;
         isHost = false;
         showScreen('lobby-screen');
-        showNotification('Te has unido a la sala exitosamente');
+        console.log('Te has unido a la sala exitosamente');
     });
     
     socket.on('players-updated', (playersList) => {
@@ -78,23 +84,23 @@ function initializeSocket() {
         // Mostrar controles solo al host
         hostControls.style.display = isHost ? 'flex' : 'none';
         
-        showNotification(`¡Ronda ${roundNumber} iniciada!`);
+        console.log(`¡Ronda ${roundNumber} iniciada!`);
     });
     
     socket.on('new-word-changed', (data) => {
-        showNotification(data.message);
+        console.log(data.message);
     });
     
     socket.on('player-left', (playerName) => {
-        showNotification(`${playerName} ha abandonado la sala`);
+        console.log(`${playerName} ha abandonado la sala`);
     });
     
     socket.on('error', (message) => {
-        showNotification(message);
+        alert(message);
     });
     
     socket.on('disconnect', () => {
-        showNotification('Desconectado del servidor. Recargando...');
+        console.log('Desconectado del servidor. Recargando...');
         setTimeout(() => {
             location.reload();
         }, 3000);
@@ -102,21 +108,121 @@ function initializeSocket() {
 }
 
 // Event Listeners del DOM
-document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
-document.getElementById('join-btn').addEventListener('click', () => showScreen('join-screen'));
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones principales
+    document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
+    document.getElementById('join-btn').addEventListener('click', () => showScreen('join-screen'));
 
-document.getElementById('create-game-btn').addEventListener('click', createGame);
-document.getElementById('join-game-btn').addEventListener('click', joinGame);
+    // Botones de crear/unirse
+    document.getElementById('create-game-btn').addEventListener('click', createGame);
+    document.getElementById('join-game-btn').addEventListener('click', joinGame);
 
-document.getElementById('start-game-btn').addEventListener('click', startGame);
-document.getElementById('new-word-btn').addEventListener('click', requestNewWord);
+    // Botones de juego
+    document.getElementById('start-game-btn').addEventListener('click', startGame);
+    document.getElementById('new-word-btn').addEventListener('click', requestNewWord);
 
-document.getElementById('back-to-main-btn-1').addEventListener('click', () => showScreen('main-screen'));
-document.getElementById('back-to-main-btn-2').addEventListener('click', () => showScreen('main-screen'));
-document.getElementById('leave-lobby-btn').addEventListener('click', leaveLobby);
-document.getElementById('leave-game-btn').addEventListener('click', leaveGame);
+    // Botones de navegación
+    document.getElementById('back-to-main-btn-1').addEventListener('click', () => showScreen('main-screen'));
+    document.getElementById('back-to-main-btn-2').addEventListener('click', () => showScreen('main-screen'));
+    document.getElementById('leave-lobby-btn').addEventListener('click', leaveLobby);
+    document.getElementById('leave-game-btn').addEventListener('click', leaveGame);
 
-// Funciones
+    // Pantalla completa
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    closeModalBtn.addEventListener('click', () => {
+        iosModal.style.display = 'none';
+    });
+
+    // Permitir enviar formularios con Enter
+    document.getElementById('host-name').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') createGame();
+    });
+    
+    document.getElementById('player-name').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') joinGame();
+    });
+    
+    document.getElementById('room-code-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') joinGame();
+    });
+
+    // Ocultar botón de pantalla completa si está en modo PWA
+    if (isStandalone()) {
+        document.body.classList.add('standalone');
+    }
+
+    // Inicializar elementos
+    resetGame();
+});
+
+// Detectar si es iOS
+function isIOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform) || 
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+}
+
+// Detectar si está en modo PWA (standalone)
+function isStandalone() {
+    return (window.matchMedia('(display-mode: standalone)').matches) || 
+           (window.navigator.standalone) || 
+           (document.referrer.includes('android-app://'));
+}
+
+// Función para pantalla completa
+function toggleFullscreen() {
+    if (isIOS()) {
+        // Mostrar modal con instrucciones para iOS
+        iosModal.style.display = 'flex';
+        return;
+    }
+
+    if (!document.fullscreenElement) {
+        // Entrar en pantalla completa
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+        } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+        }
+    } else {
+        // Salir de pantalla completa
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+// Escuchar cambios en el modo pantalla completa
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+document.addEventListener('msfullscreenchange', updateFullscreenButton);
+
+function updateFullscreenButton() {
+    if (document.fullscreenElement || 
+        document.webkitFullscreenElement || 
+        document.msFullscreenElement) {
+        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
+        fullscreenBtn.title = 'Salir de pantalla completa';
+    } else {
+        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
+        fullscreenBtn.title = 'Pantalla completa';
+    }
+}
+
+// Funciones principales del juego
 function showScreen(screenId) {
     screens.forEach(screen => screen.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
@@ -126,7 +232,7 @@ function showScreen(screenId) {
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
     if (!hostName) {
-        showNotification('Por favor, ingresa tu nombre');
+        alert('Por favor, ingresa tu nombre');
         return;
     }
     
@@ -139,12 +245,12 @@ function joinGame() {
     const code = document.getElementById('room-code-input').value.trim();
     
     if (!playerName) {
-        showNotification('Por favor, ingresa tu nombre');
+        alert('Por favor, ingresa tu nombre');
         return;
     }
     
     if (!code || code.length !== 4 || isNaN(code)) {
-        showNotification('Por favor, ingresa un código de sala válido (4 dígitos)');
+        alert('Por favor, ingresa un código de sala válido (4 dígitos)');
         return;
     }
     
@@ -154,7 +260,7 @@ function joinGame() {
 
 function startGame() {
     if (players.length < 2) {
-        showNotification('Se necesitan al menos 2 jugadores para comenzar');
+        alert('Se necesitan al menos 2 jugadores para comenzar');
         return;
     }
     
@@ -233,30 +339,4 @@ function updateGamePlayerList(playersList) {
         gamePlayerList.appendChild(li);
     });
 }
-
-function showNotification(message) {
-    notification.textContent = message;
-    notification.style.display = 'block';
-    setTimeout(() => {
-        notification.style.display = 'none';
-    }, 3000);
-}
-
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    // Permitir enviar formularios con Enter
-    document.getElementById('host-name').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') createGame();
-    });
-    
-    document.getElementById('player-name').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') joinGame();
-    });
-    
-    document.getElementById('room-code-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') joinGame();
-    });
-    
-    // Inicializar elementos
-    resetGame();
-});
+[file content end]

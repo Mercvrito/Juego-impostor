@@ -1,3 +1,5 @@
+[file name]: manifest.json
+[file content begin]
 {
   "name": "UNDERCOVER '88",
   "short_name": "UNDERCOVER",
@@ -5,7 +7,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
-  "theme_color": "#00ff00",
+  "theme_color": "#0a0a0a",
   "orientation": "portrait",
   "scope": "/",
   "lang": "es",
@@ -42,3 +44,4 @@
     }
   ]
 }
+[file content end]

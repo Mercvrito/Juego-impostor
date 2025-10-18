@@ -1,3 +1,5 @@
+[file name]: style.css
+[file content begin]
 * {
     margin: 0;
     padding: 0;
@@ -131,6 +133,88 @@ body {
     0% { opacity: 0.3; }
     50% { opacity: 0.5; }
     100% { opacity: 0.3; }
+}
+
+/* Botón de pantalla completa */
+.fullscreen-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    background: rgba(10, 10, 10, 0.8);
+    color: var(--retro-glow);
+    border: 2px solid var(--retro-glow);
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    width: auto;
+    min-height: auto;
+}
+
+.fullscreen-btn:hover {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+/* Ocultar botón en modo PWA */
+body.standalone .fullscreen-btn {
+    display: none;
+}
+
+/* Modal para iOS */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1002;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--retro-dark);
+    border: 3px solid var(--retro-glow);
+    padding: 25px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+}
+
+.modal-content h3 {
+    color: var(--retro-glow);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.modal-content p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.modal-content ol {
+    text-align: left;
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.modal-content li {
+    margin-bottom: 8px;
+    line-height: 1.4;
 }
 
 .header {
@@ -666,31 +750,6 @@ label {
     width: 100%;
 }
 
-.retro-notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #000;
-    color: var(--retro-glow);
-    padding: 12px 20px;
-    border-radius: 0;
-    z-index: 1000;
-    display: none;
-    text-align: center;
-    border: 2px solid var(--retro-glow);
-    box-shadow: 
-        0 0 20px rgba(0, 255, 0, 0.5),
-        inset 0 0 20px rgba(0, 255, 0, 0.1);
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    animation: crtOn 0.3s ease-out;
-    max-width: 90%;
-    font-size: clamp(0.9rem, 3.5vw, 1rem);
-    word-break: break-word;
-}
-
 /* Ocultar controles de host por defecto */
 #host-controls {
     display: none;
@@ -757,6 +816,13 @@ label {
         padding: 20px 12px;
         min-height: 100px;
     }
+    
+    .fullscreen-btn {
+        top: 10px;
+        right: 10px;
+        padding: 6px 10px;
+        font-size: 1rem;
+    }
 }
 
 /* Orientación landscape */
@@ -821,3 +887,4 @@ label {
         font-size: 16px !important;
     }
 }
+[file content end]
