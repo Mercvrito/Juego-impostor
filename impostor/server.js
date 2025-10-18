@@ -23,27 +23,58 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ✅ NUEVO: Servir manifest.json para PWA
+// ✅ RUTAS PARA FAVICON Y ICONOS
+app.get('/favicon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon-32x32.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon-16x16.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/apple-touch-icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/apple-touch-icon-precomposed.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/android-chrome-192x192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/android-chrome-512x512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+// ✅ RUTAS PARA PWA
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
 });
 
-// ✅ NUEVO: Servir service-worker.js para PWA
 app.get('/service-worker.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
 });
 
-// ✅ NUEVO: Servir iconos para PWA (opcional, pero recomendado)
 app.get('/icon-192.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'icon-192.png'));
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
 app.get('/icon-512.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'icon-512.png'));
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
-// ✅ NUEVO: Ruta de fallback para SPA (Single Page Application)
+// ✅ Ruta de fallback para SPA (Single Page Application)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -243,4 +274,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`📚 Diccionario cargado: ${words.length} palabras disponibles`);
     console.log(`📱 PWA habilitada: /manifest.json`);
     console.log(`⚙️ Service Worker: /service-worker.js`);
+    console.log(`🎯 Favicon disponible: /favicon.png`);
+    console.log(`📁 Archivos estáticos en: ${path.join(__dirname, 'public')}`);
 });
