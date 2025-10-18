@@ -1,3 +1,5 @@
+[file name]: client.js
+[file content begin]
 // Variables globales
 let currentScreen = 'main-screen';
 let players = [];
@@ -107,6 +109,25 @@ function initializeSocket() {
 
 // Event Listeners del DOM
 document.addEventListener('DOMContentLoaded', function() {
+    // Ajustar layout para evitar scroll
+    function adjustLayout() {
+        const container = document.querySelector('.container');
+        const header = document.querySelector('.header');
+        
+        if (container && header) {
+            const headerHeight = header.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const maxContainerHeight = windowHeight - headerHeight - 30; // 30px de margen
+            
+            container.style.maxHeight = maxContainerHeight + 'px';
+            container.style.overflow = 'hidden';
+        }
+    }
+
+    // Ajustar layout inicial
+    adjustLayout();
+    window.addEventListener('resize', adjustLayout);
+
     // Botones principales
     document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
     document.getElementById('join-btn').addEventListener('click', () => showScreen('join-screen'));
@@ -350,3 +371,4 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+[file content end]
