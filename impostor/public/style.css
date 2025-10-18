@@ -43,25 +43,6 @@ body {
 }
 
 /* Efectos de pantalla CRT mejorados */
-.scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 200%;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15) 0px,
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 2px
-    );
-    pointer-events: none;
-    z-index: 100;
-    animation: scanline 4s linear infinite;
-    mix-blend-mode: overlay;
-animation:none;
-}
 
 .film-grain {
     position: fixed;
