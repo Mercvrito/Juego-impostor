@@ -15,11 +15,67 @@ const io = socketIo(server, {
   }
 });
 
-// Servir archivos estáticos
+// Servir archivos estáticos desde la carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta principal
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ✅ RUTAS PARA FAVICON Y ICONOS PWA
+app.get('/favicon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon-32x32.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon-16x16.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/apple-touch-icon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/apple-touch-icon-precomposed.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/android-chrome-192x192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/android-chrome-512x512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+// ✅ RUTAS PARA PWA
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
+app.get('/icon-192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/icon-512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+// ✅ Ruta de fallback para SPA
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -168,9 +224,14 @@ io.on('connection', (socket) => {
                     if (!room.players.some(p => p.isHost)) {
                         room.players[0].isHost = true;
                         io.to(roomCode).emit('players-updated', room.players);
+                        io.to(roomCode).emit('new-word-changed', {
+                            message: `👑 ${room.players[0].name} es ahora el host`,
+                            roundNumber: room.roundNumber
+                        });
                     }
                     
                     io.to(roomCode).emit('players-updated', room.players);
+                    io.to(roomCode).emit('player-left', `${playerName} ha abandonado la sala`);
                 }
                 break;
             }
@@ -208,4 +269,8 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
     console.log(`📚 Diccionario cargado: ${words.length} palabras disponibles`);
+    console.log(`📱 PWA habilitada: /manifest.json`);
+    console.log(`⚙️ Service Worker: /service-worker.js`);
+    console.log(`🎯 Favicon disponible: /favicon.png`);
+    console.log(`📁 Archivos estáticos en: ${path.join(__dirname, 'public')}`);
 });

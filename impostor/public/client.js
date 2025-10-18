@@ -144,6 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') joinGame();
     });
 
+    // Ocultar botón de pantalla completa si está en modo PWA
+    if (isStandalone()) {
+        document.body.classList.add('standalone');
+    }
+
     // Inicializar elementos
     resetGame();
 });
@@ -159,6 +164,13 @@ function isIOS() {
         'iPod'
     ].includes(navigator.platform) || 
     (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+}
+
+// Detectar si está en modo PWA (standalone)
+function isStandalone() {
+    return (window.matchMedia('(display-mode: standalone)').matches) || 
+           (window.navigator.standalone) || 
+           (document.referrer.includes('android-app://'));
 }
 
 // Función para pantalla completa
@@ -188,6 +200,23 @@ function toggleFullscreen() {
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
+    }
+}
+
+// Escuchar cambios en el modo pantalla completa
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+document.addEventListener('msfullscreenchange', updateFullscreenButton);
+
+function updateFullscreenButton() {
+    if (document.fullscreenElement || 
+        document.webkitFullscreenElement || 
+        document.msFullscreenElement) {
+        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
+        fullscreenBtn.title = 'Salir de pantalla completa';
+    } else {
+        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
+        fullscreenBtn.title = 'Pantalla completa';
     }
 }
 
@@ -306,5 +335,18 @@ function updateGamePlayerList(playersList) {
             <span class="player-status">${player.isHost ? 'Anfitrión' : 'Jugador'}</span>
         `;
         gamePlayerList.appendChild(li);
+    });
+}
+
+// Registrar Service Worker para PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registrado con éxito: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Error registrando ServiceWorker: ', error);
+            });
     });
 }

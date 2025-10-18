@@ -1,5 +1,3 @@
-[file name]: manifest.json
-[file content begin]
 {
   "name": "UNDERCOVER '88",
   "short_name": "UNDERCOVER",
@@ -28,20 +26,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshot-narrow.png",
-      "sizes": "720x1280",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
   ]
 }
-[file content end]

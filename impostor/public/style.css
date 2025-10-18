@@ -1,5 +1,3 @@
-[file name]: style.css
-[file content begin]
 * {
     margin: 0;
     padding: 0;
@@ -887,4 +885,34 @@ label {
         font-size: 16px !important;
     }
 }
-[file content end]
+
+/* Estados de carga y transiciones */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible para mejor accesibilidad */
+.retro-btn:focus-visible,
+.retro-input:focus-visible {
+    outline: 2px solid var(--retro-glow);
+    outline-offset: 2px;
+}
