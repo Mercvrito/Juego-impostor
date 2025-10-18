@@ -60,6 +60,7 @@ body {
     z-index: 100;
     animation: scanline 4s linear infinite;
     mix-blend-mode: overlay;
+animation:none;
 }
 
 .film-grain {
