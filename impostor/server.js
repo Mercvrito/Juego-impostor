@@ -7,7 +7,7 @@ const fs = require('fs');
 const app = express();
 const server = http.createServer(app);
 
-// Configuración para producción
+// Configuración de Socket.IO
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -15,67 +15,11 @@ const io = socketIo(server, {
   }
 });
 
-// Servir archivos estáticos desde la carpeta public
+// Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ✅ RUTAS PARA FAVICON Y ICONOS
-app.get('/favicon.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/favicon-32x32.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/favicon-16x16.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/apple-touch-icon.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/apple-touch-icon-precomposed.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/android-chrome-192x192.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/android-chrome-512x512.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-// ✅ RUTAS PARA PWA
-app.get('/manifest.json', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
-});
-
-app.get('/service-worker.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
-});
-
-app.get('/icon-192.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-app.get('/icon-512.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
-});
-
-// ✅ Ruta de fallback para SPA (Single Page Application)
-app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -87,7 +31,6 @@ function cargarPalabras() {
             .map(palabra => palabra.trim())
             .filter(palabra => palabra.length > 0)
             .filter(palabra => palabra.length >= 3 && palabra.length <= 12)
-            .filter(palabra => !palabra.includes('aje') && !palabra.includes('ción') && !palabra.includes('ología'))
             .slice(0, 3000);
         
         console.log(`✅ Cargadas ${palabras.length} palabras del diccionario`);
@@ -103,8 +46,6 @@ function cargarPalabras() {
 }
 
 const words = cargarPalabras();
-
-// Datos del juego
 const rooms = new Map();
 
 // Generar código de sala único
@@ -160,7 +101,7 @@ io.on('connection', (socket) => {
             return;
         }
         
-        // ✅ MEJORA: Verificar nombre duplicado
+        // Verificar nombre duplicado
         if (room.players.some(player => player.name === playerName)) {
             socket.emit('error', '⚠️ Ya existe un jugador con ese nombre');
             return;
@@ -223,18 +164,13 @@ io.on('connection', (socket) => {
                     rooms.delete(roomCode);
                     console.log(`🗑️ Sala ${roomCode} eliminada por estar vacía`);
                 } else {
-                    // ✅ MEJORA: Asignar nuevo host si el anterior se fue
+                    // Asignar nuevo host si el anterior se fue
                     if (!room.players.some(p => p.isHost)) {
                         room.players[0].isHost = true;
                         io.to(roomCode).emit('players-updated', room.players);
-                        io.to(roomCode).emit('new-word-changed', {
-                            message: `👑 ${room.players[0].name} es ahora el host`,
-                            roundNumber: room.roundNumber
-                        });
                     }
                     
                     io.to(roomCode).emit('players-updated', room.players);
-                    io.to(roomCode).emit('player-left', `${playerName} ha abandonado la sala`);
                 }
                 break;
             }
@@ -266,14 +202,10 @@ io.on('connection', (socket) => {
     }
 });
 
-// PUERTO PARA RAILWAY (IMPORTANTE)
+// Puerto para Railway
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
     console.log(`📚 Diccionario cargado: ${words.length} palabras disponibles`);
-    console.log(`📱 PWA habilitada: /manifest.json`);
-    console.log(`⚙️ Service Worker: /service-worker.js`);
-    console.log(`🎯 Favicon disponible: /favicon.png`);
-    console.log(`📁 Archivos estáticos en: ${path.join(__dirname, 'public')}`);
 });

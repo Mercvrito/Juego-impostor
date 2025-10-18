@@ -1,5 +1,3 @@
-[file name]: client.js
-[file content begin]
 // Variables globales
 let currentScreen = 'main-screen';
 let players = [];
@@ -146,11 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') joinGame();
     });
 
-    // Ocultar botón de pantalla completa si está en modo PWA
-    if (isStandalone()) {
-        document.body.classList.add('standalone');
-    }
-
     // Inicializar elementos
     resetGame();
 });
@@ -166,13 +159,6 @@ function isIOS() {
         'iPod'
     ].includes(navigator.platform) || 
     (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-}
-
-// Detectar si está en modo PWA (standalone)
-function isStandalone() {
-    return (window.matchMedia('(display-mode: standalone)').matches) || 
-           (window.navigator.standalone) || 
-           (document.referrer.includes('android-app://'));
 }
 
 // Función para pantalla completa
@@ -202,23 +188,6 @@ function toggleFullscreen() {
         } else if (document.msExitFullscreen) {
             document.msExitFullscreen();
         }
-    }
-}
-
-// Escuchar cambios en el modo pantalla completa
-document.addEventListener('fullscreenchange', updateFullscreenButton);
-document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
-document.addEventListener('msfullscreenchange', updateFullscreenButton);
-
-function updateFullscreenButton() {
-    if (document.fullscreenElement || 
-        document.webkitFullscreenElement || 
-        document.msFullscreenElement) {
-        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
-        fullscreenBtn.title = 'Salir de pantalla completa';
-    } else {
-        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
-        fullscreenBtn.title = 'Pantalla completa';
     }
 }
 
@@ -339,4 +308,3 @@ function updateGamePlayerList(playersList) {
         gamePlayerList.appendChild(li);
     });
 }
-[file content end]
