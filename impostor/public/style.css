@@ -134,10 +134,7 @@ body {
     animation: tubePulse 4s ease-in-out infinite;
 }
 
-@keyframes scanline {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(-50%); }
-}
+
 
 @keyframes static {
     0% { opacity: 0.3; }
