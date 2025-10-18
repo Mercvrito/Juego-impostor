@@ -28,7 +28,6 @@ const closeModalBtn = document.getElementById('close-modal-btn');
 function initializeSocket() {
     socket = io();
     
-    // Event listeners del socket
     socket.on('connect', () => {
         console.log('Conectado al servidor');
     });
@@ -72,9 +71,7 @@ function initializeSocket() {
         updateGamePlayerList(data.players);
         showScreen('game-screen');
         
-        // Mostrar controles solo al host
         hostControls.style.display = isHost ? 'flex' : 'none';
-        
         console.log(`¡Ronda ${roundNumber} iniciada!`);
     });
     
@@ -100,21 +97,6 @@ function initializeSocket() {
 
 // Event Listeners del DOM
 document.addEventListener('DOMContentLoaded', function() {
-    // Ajustar layout para evitar scroll
-    function adjustLayout() {
-        const container = document.querySelector('.container');
-        const header = document.querySelector('.header');
-        
-        if (container && header) {
-            const headerHeight = header.offsetHeight;
-            const windowHeight = window.innerHeight;
-            const maxContainerHeight = windowHeight - headerHeight - 30;
-            
-            container.style.maxHeight = maxContainerHeight + 'px';
-            container.style.overflow = 'hidden';
-        }
-    }
-
     // Ajustar layout inicial
     adjustLayout();
     window.addEventListener('resize', adjustLayout);
@@ -161,11 +143,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('standalone');
     }
 
-    // Inicializar elementos
     resetGame();
 });
 
-// Detectar si es iOS
+function adjustLayout() {
+    const container = document.querySelector('.container');
+    const header = document.querySelector('.header');
+    
+    if (container && header) {
+        const headerHeight = header.offsetHeight;
+        const windowHeight = window.innerHeight;
+        const maxContainerHeight = windowHeight - headerHeight - 30;
+        
+        container.style.maxHeight = maxContainerHeight + 'px';
+        container.style.overflow = 'auto';
+    }
+}
+
 function isIOS() {
     return [
         'iPad Simulator',
@@ -178,23 +172,19 @@ function isIOS() {
     (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 }
 
-// Detectar si está en modo PWA (standalone)
 function isStandalone() {
     return (window.matchMedia('(display-mode: standalone)').matches) || 
            (window.navigator.standalone) || 
            (document.referrer.includes('android-app://'));
 }
 
-// Función para pantalla completa
 function toggleFullscreen() {
     if (isIOS()) {
-        // Mostrar modal con instrucciones para iOS
         iosModal.style.display = 'flex';
         return;
     }
 
     if (!document.fullscreenElement) {
-        // Entrar en pantalla completa
         const docEl = document.documentElement;
         if (docEl.requestFullscreen) {
             docEl.requestFullscreen();
@@ -204,7 +194,6 @@ function toggleFullscreen() {
             docEl.msRequestFullscreen();
         }
     } else {
-        // Salir de pantalla completa
         if (document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
@@ -215,7 +204,6 @@ function toggleFullscreen() {
     }
 }
 
-// Escuchar cambios en el modo pantalla completa
 document.addEventListener('fullscreenchange', updateFullscreenButton);
 document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
 document.addEventListener('msfullscreenchange', updateFullscreenButton);
@@ -330,7 +318,6 @@ function updatePlayerList() {
         playerList.appendChild(li);
     });
     
-    // Actualizar estado del botón de iniciar
     const startBtn = document.getElementById('start-game-btn');
     if (startBtn) {
         startBtn.disabled = players.length < 2;
