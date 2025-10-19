@@ -42,22 +42,55 @@ function handleOrientationChange() {
     }, 300);
 }
 
-// Función mejorada para ajustar el layout sin scroll
+// Función mejorada para ajustar el layout - TODO en una pantalla
 function adjustLayoutNoScroll() {
     const container = document.querySelector('.container');
     const currentScreen = document.querySelector('.screen.active');
     
     if (container && currentScreen) {
-        // Forzar el recálculo de alturas
-        container.style.display = 'none';
-        container.offsetHeight; // Trigger reflow
-        container.style.display = 'flex';
+        // Ajustar el contenedor principal para ocupar el espacio disponible
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const windowHeight = window.innerHeight;
+        const availableHeight = windowHeight - headerHeight - 15;
         
-        // Ajustar específicamente la lista de jugadores
+        container.style.maxHeight = availableHeight + 'px';
+        container.style.height = availableHeight + 'px';
+        
+        // Ajustar específicamente la lista de jugadores según la pantalla
         const playerList = currentScreen.querySelector('.player-list');
         if (playerList) {
-            const availableHeight = container.offsetHeight - playerList.offsetTop - 100;
-            playerList.style.maxHeight = Math.max(150, availableHeight) + 'px';
+            let availableListHeight;
+            
+            if (currentScreen.id === 'lobby-screen') {
+                const lobbyHeader = currentScreen.querySelector('.lobby-header');
+                const h3 = currentScreen.querySelector('h3');
+                const btnContainer = currentScreen.querySelector('.btn-container');
+                
+                const usedHeight = lobbyHeader.offsetHeight + h3.offsetHeight + 
+                                 btnContainer.offsetHeight + 40;
+                availableListHeight = availableHeight - usedHeight;
+            } else if (currentScreen.id === 'game-screen') {
+                const gameHeader = currentScreen.querySelector('.game-header');
+                const wordDisplay = currentScreen.querySelector('.word-display');
+                const h3 = currentScreen.querySelector('h3');
+                const hostControls = currentScreen.querySelector('#host-controls');
+                const btnContainer = currentScreen.querySelector('.btn-container');
+                
+                let usedHeight = gameHeader.offsetHeight + wordDisplay.offsetHeight + 
+                               h3.offsetHeight + btnContainer.offsetHeight + 30;
+                
+                if (hostControls.style.display !== 'none') {
+                    usedHeight += hostControls.offsetHeight;
+                }
+                
+                availableListHeight = availableHeight - usedHeight;
+            } else {
+                // Para otras pantallas, altura fija más pequeña
+                availableListHeight = Math.min(120, availableHeight * 0.3);
+            }
+            
+            playerList.style.maxHeight = Math.max(60, availableListHeight) + 'px';
+            playerList.style.minHeight = '60px';
         }
     }
 }
@@ -119,6 +152,9 @@ function initializeSocket() {
         isHost = true;
         showScreen('lobby-screen');
         console.log('Sala creada exitosamente');
+        
+        // Ajustar layout después de cambiar de pantalla
+        setTimeout(adjustLayoutNoScroll, 100);
     });
     
     socket.on('joined-room', (code) => {
@@ -128,12 +164,18 @@ function initializeSocket() {
         isHost = false;
         showScreen('lobby-screen');
         console.log('Te has unido a la sala exitosamente');
+        
+        // Ajustar layout después de cambiar de pantalla
+        setTimeout(adjustLayoutNoScroll, 100);
     });
     
     socket.on('players-updated', (playersList) => {
         players = playersList;
         updatePlayerList();
         playersCountDisplay.textContent = players.length;
+        
+        // Ajustar layout cuando cambia la lista de jugadores
+        setTimeout(adjustLayoutNoScroll, 50);
     });
     
     socket.on('round-started', (data) => {
@@ -181,7 +223,7 @@ function initializeSocket() {
 // Event Listeners del DOM
 document.addEventListener('DOMContentLoaded', function() {
     // Ajustar layout inicial
-    adjustLayoutNoScroll();
+    setTimeout(adjustLayoutNoScroll, 100);
     window.addEventListener('resize', handleOrientationChange);
 
     // Botones principales
@@ -297,12 +339,27 @@ function showScreen(screenId) {
     
     // Ajustar layout después de cambiar de pantalla
     setTimeout(adjustLayoutNoScroll, 100);
+    
+    // Limpiar inputs al cambiar de pantalla
+    if (screenId === 'create-screen') {
+        document.getElementById('host-name').value = '';
+        document.getElementById('host-name').focus();
+    } else if (screenId === 'join-screen') {
+        document.getElementById('player-name').value = '';
+        document.getElementById('room-code-input').value = '';
+        document.getElementById('player-name').focus();
+    }
 }
 
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
     if (!hostName) {
         showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
+        return;
+    }
+    
+    if (hostName.length > 15) {
+        showRetroAlert('NOMBRE DEMASIADO LARGO<br>MÁXIMO 15 CARACTERES');
         return;
     }
     
@@ -316,6 +373,11 @@ function joinGame() {
     
     if (!playerName) {
         showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
+        return;
+    }
+    
+    if (playerName.length > 15) {
+        showRetroAlert('NOMBRE DEMASIADO LARGO<br>MÁXIMO 15 CARACTERES');
         return;
     }
     
@@ -376,6 +438,11 @@ function resetGame() {
     gameRoomCodeDisplay.textContent = '0000';
     playersCountDisplay.textContent = '0';
     hostControls.style.display = 'none';
+    
+    // Limpiar inputs
+    document.getElementById('host-name').value = '';
+    document.getElementById('player-name').value = '';
+    document.getElementById('room-code-input').value = '';
 }
 
 function updatePlayerList() {
@@ -393,7 +460,15 @@ function updatePlayerList() {
     const startBtn = document.getElementById('start-game-btn');
     if (startBtn) {
         startBtn.disabled = players.length < 2;
+        if (startBtn.disabled) {
+            startBtn.title = 'Se necesitan al menos 2 jugadores';
+        } else {
+            startBtn.title = 'Iniciar partida';
+        }
     }
+    
+    // Ajustar layout después de actualizar la lista
+    setTimeout(adjustLayoutNoScroll, 50);
 }
 
 function updateGamePlayerList(playersList) {
@@ -407,7 +482,24 @@ function updateGamePlayerList(playersList) {
         `;
         gamePlayerList.appendChild(li);
     });
+    
+    // Ajustar layout después de actualizar la lista
+    setTimeout(adjustLayoutNoScroll, 50);
 }
+
+// Función para manejar la visibilidad de la página
+function handleVisibilityChange() {
+    if (document.hidden) {
+        console.log('Página en segundo plano');
+    } else {
+        console.log('Página en primer plano');
+        // Reajustar layout cuando la página vuelve a ser visible
+        setTimeout(adjustLayoutNoScroll, 100);
+    }
+}
+
+// Registrar listeners de visibilidad
+document.addEventListener('visibilitychange', handleVisibilityChange);
 
 // Registrar Service Worker para PWA
 if ('serviceWorker' in navigator) {
@@ -421,3 +513,34 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// Prevenir acciones no deseadas en móviles
+document.addEventListener('touchstart', function(e) {
+    // Prevenir zoom en inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+    
+    // Prevenir comportamiento por defecto en botones
+    if (e.target.classList.contains('retro-btn')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// Manejar el evento antes de que la página se descargue
+window.addEventListener('beforeunload', function(e) {
+    if (socket && socket.connected) {
+        socket.disconnect();
+    }
+});
+
+// Inicialización final cuando todo está cargado
+window.addEventListener('load', function() {
+    console.log('UNDERCOVER 88 - Juego cargado correctamente');
+    
+    // Ajuste final del layout
+    setTimeout(adjustLayoutNoScroll, 200);
+    
+    // Forzar un reflow para asegurar que todo se renderice correctamente
+    document.body.offsetHeight;
+});
