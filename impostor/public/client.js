@@ -24,6 +24,68 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const iosModal = document.getElementById('ios-fullscreen-modal');
 const closeModalBtn = document.getElementById('close-modal-btn');
 
+// ===========================================
+// MANEJO DE CAMBIOS DE ORIENTACIÓN
+// ===========================================
+
+let orientationTimer;
+
+function handleOrientationChange() {
+    // Aplicar clase temporal para la transición
+    document.body.classList.add('orientation-change');
+    
+    // Ajustar layout después de un breve delay
+    clearTimeout(orientationTimer);
+    orientationTimer = setTimeout(() => {
+        adjustLayout();
+        document.body.classList.remove('orientation-change');
+    }, 300);
+}
+
+// Detectar cambios de orientación
+window.addEventListener('orientationchange', handleOrientationChange);
+window.addEventListener('resize', handleOrientationChange);
+
+// Función mejorada para ajustar el layout
+function adjustLayout() {
+    const container = document.querySelector('.container');
+    const header = document.querySelector('.header');
+    
+    if (container && header) {
+        const headerHeight = header.offsetHeight;
+        const windowHeight = window.innerHeight;
+        
+        // Calcular altura máxima basada en orientación
+        let maxContainerHeight;
+        if (window.innerHeight > window.innerWidth) {
+            // Portrait
+            maxContainerHeight = windowHeight - headerHeight - 20;
+        } else {
+            // Landscape
+            maxContainerHeight = windowHeight - headerHeight - 15;
+        }
+        
+        container.style.maxHeight = maxContainerHeight + 'px';
+        container.style.height = maxContainerHeight + 'px';
+        
+        // Ajustar específicamente la lista de jugadores en la pantalla de juego
+        const gamePlayerList = document.getElementById('game-player-list');
+        if (gamePlayerList && currentScreen === 'game-screen') {
+            const gameHeader = document.querySelector('.game-header');
+            const wordDisplay = document.querySelector('.word-display');
+            const btnContainer = document.querySelector('#game-screen .btn-container');
+            
+            if (gameHeader && wordDisplay && btnContainer) {
+                const usedHeight = gameHeader.offsetHeight + wordDisplay.offsetHeight + 
+                                 btnContainer.offsetHeight + 60; // Margenes y padding
+                
+                const availableHeight = maxContainerHeight - usedHeight;
+                gamePlayerList.style.maxHeight = Math.max(150, availableHeight) + 'px';
+            }
+        }
+    }
+}
+
 // Sistema de notificaciones retro
 function showRetroAlert(message, isError = true) {
     // Crear overlay
@@ -111,6 +173,9 @@ function initializeSocket() {
         
         hostControls.style.display = isHost ? 'flex' : 'none';
         console.log(`¡Ronda ${roundNumber} iniciada!`);
+        
+        // Ajustar layout después de cambiar a pantalla de juego
+        setTimeout(adjustLayout, 100);
     });
     
     socket.on('new-word-changed', (data) => {
@@ -137,7 +202,7 @@ function initializeSocket() {
 document.addEventListener('DOMContentLoaded', function() {
     // Ajustar layout inicial
     adjustLayout();
-    window.addEventListener('resize', adjustLayout);
+    window.addEventListener('resize', handleOrientationChange);
 
     // Botones principales
     document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
@@ -183,20 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     resetGame();
 });
-
-function adjustLayout() {
-    const container = document.querySelector('.container');
-    const header = document.querySelector('.header');
-    
-    if (container && header) {
-        const headerHeight = header.offsetHeight;
-        const windowHeight = window.innerHeight;
-        const maxContainerHeight = windowHeight - headerHeight - 30;
-        
-        container.style.maxHeight = maxContainerHeight + 'px';
-        container.style.overflow = 'auto';
-    }
-}
 
 function isIOS() {
     return [
@@ -263,6 +314,9 @@ function showScreen(screenId) {
     screens.forEach(screen => screen.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
     currentScreen = screenId;
+    
+    // Ajustar layout después de cambiar de pantalla
+    setTimeout(adjustLayout, 100);
 }
 
 function createGame() {

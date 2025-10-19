@@ -38,6 +38,7 @@ body {
     position: relative;
     overflow-x: hidden;
     width: 100%;
+    overflow: hidden;
 }
 
 /* Fondo CRT para modo normal */
@@ -876,7 +877,84 @@ label {
     background: var(--retro-glow);
 }
 
-/* Mejoras específicas para móviles */
+/* ===========================================
+   CORRECCIONES PARA ORIENTACIÓN VERTICAL
+   =========================================== */
+
+/* Reset de altura para orientación vertical */
+@media (orientation: portrait) {
+    body {
+        height: 100vh;
+        min-height: -webkit-fill-available;
+        overflow: hidden;
+    }
+    
+    .container {
+        max-height: calc(100vh - 180px) !important;
+        height: calc(100vh - 180px) !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .screen.active {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+}
+
+/* ===========================================
+   CORRECCIONES ESPECÍFICAS PARA PANTALLA DE JUEGO
+   =========================================== */
+
+#game-screen.active {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 10px;
+}
+
+/* Header del juego - fijo en la parte superior */
+.game-header {
+    flex-shrink: 0;
+    margin-bottom: 15px;
+}
+
+/* Contenedor de palabra - tamaño fijo */
+.word-display {
+    flex-shrink: 0;
+    margin: 15px 0;
+    min-height: 100px;
+    max-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Lista de jugadores - con scroll */
+#game-player-list {
+    flex: 1;
+    min-height: 150px;
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 10px 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Controles - fijos en la parte inferior */
+#game-screen .btn-container {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+/* ===========================================
+   CORRECCIONES PARA DISPOSITIVOS MÓVILES
+   =========================================== */
+
 @media (max-width: 768px) {
     body {
         padding: 5px;
@@ -887,7 +965,8 @@ label {
     .container {
         padding: 15px 10px;
         margin-top: 5px;
-        max-height: calc(100vh - 150px);
+        max-height: calc(100vh - 140px) !important;
+        height: calc(100vh - 140px) !important;
         -webkit-overflow-scrolling: touch;
     }
     
@@ -930,6 +1009,39 @@ label {
         font-size: 1rem;
     }
     
+    /* Ajustes específicos para pantalla de juego en móviles */
+    #game-screen.active {
+        padding: 10px 5px;
+    }
+    
+    .game-header {
+        margin-bottom: 10px;
+        padding: 10px;
+    }
+    
+    .word-display {
+        margin: 10px 0;
+        min-height: 80px;
+        max-height: 100px;
+        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        padding: 15px 10px;
+    }
+    
+    #game-player-list {
+        max-height: 35vh;
+        margin: 8px 0;
+    }
+    
+    #game-screen .btn-container {
+        padding-top: 8px;
+    }
+    
+    #game-screen .retro-btn {
+        min-height: 45px;
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
     /* Prevenir zoom en iOS */
     input, select, textarea {
         font-size: 16px !important;
@@ -941,35 +1053,46 @@ label {
     }
 }
 
-/* Orientación landscape */
+/* ===========================================
+   CORRECCIONES PARA ORIENTACIÓN LANDSCAPE
+   =========================================== */
+
 @media (max-height: 600px) and (orientation: landscape) {
-    .header {
-        padding: 8px 5px;
-        margin-bottom: 8px;
-    }
-    
     .container {
-        padding: 10px 8px;
-        max-height: calc(100vh - 120px);
+        max-height: calc(100vh - 100px) !important;
+        height: calc(100vh - 100px) !important;
     }
     
-    h2 {
-        margin-bottom: 12px;
+    #game-screen.active {
+        padding: 5px;
     }
     
-    .player-list {
-        max-height: 25vh;
+    .game-header {
+        margin-bottom: 8px;
+        padding: 8px;
     }
     
     .word-display {
-        margin: 15px 0;
-        padding: 15px 10px;
-        min-height: 80px;
-        font-size: clamp(1.2rem, 4vw, 1.8rem);
+        margin: 8px 0;
+        min-height: 60px;
+        max-height: 80px;
+        font-size: clamp(1rem, 4vh, 1.5rem) !important;
+        padding: 10px 8px;
     }
     
-    .btn-container {
-        margin-top: 12px;
+    #game-player-list {
+        max-height: 25vh;
+        margin: 5px 0;
+    }
+    
+    #game-screen .btn-container {
+        padding-top: 5px;
+    }
+    
+    #game-screen .retro-btn {
+        min-height: 40px;
+        padding: 10px 12px;
+        font-size: 13px;
     }
 }
 
@@ -1052,4 +1175,54 @@ label {
 
 .screen {
     -webkit-transform: translate3d(0,0,0);
+}
+
+/* ===========================================
+   DETECCIÓN DE CAMBIOS DE ORIENTACIÓN
+   =========================================== */
+
+/* Estilos específicos para cuando cambia la orientación */
+.orientation-change {
+    animation: orientationChange 0.3s ease-out;
+}
+
+@keyframes orientationChange {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* ===========================================
+   PREVENIR SCROLL EN EL BODY Y CONTENEDOR PRINCIPAL
+   =========================================== */
+
+body {
+    overflow: hidden;
+}
+
+.container {
+    overflow: hidden;
+}
+
+.screen {
+    overflow: hidden;
+}
+
+/* Permitir scroll solo en elementos específicos */
+.player-list,
+#game-player-list {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ===========================================
+   MEJORAS DE RENDIMIENTO Y ANIMACIONES
+   =========================================== */
+
+/* Optimizar transformaciones para mejor rendimiento */
+.screen,
+.player-item,
+.retro-btn,
+.word-display {
+    will-change: transform;
+    transform: translateZ(0);
 }
