@@ -18,6 +18,7 @@ const wordDisplay = document.getElementById('word-display');
 const roundNumberDisplay = document.getElementById('round-number');
 const gameRoomCodeDisplay = document.getElementById('game-room-code');
 const hostControls = document.getElementById('host-controls');
+const startGameBtn = document.getElementById('start-game-btn'); // Añadido para referencia
 
 // Elementos para pantalla completa
 const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -635,6 +636,11 @@ function joinGame() {
 function startGame() {
     console.log('🎯 Intentando iniciar partida en sala:', roomCode);
     
+    if (!isHost) {
+        console.log('❌ No eres el host, no puedes iniciar la partida');
+        return;
+    }
+    
     if (players.length < 2) {
         console.log('❌ Jugadores insuficientes:', players.length);
         return;
@@ -736,10 +742,17 @@ function updatePlayerList() {
     
     const startBtn = document.getElementById('start-game-btn');
     if (startBtn) {
-        startBtn.disabled = players.length < 2;
+        // Solo el host puede iniciar la partida
+        startBtn.disabled = !isHost || players.length < 2;
+        
         if (startBtn.disabled) {
-            startBtn.title = 'Se necesitan al menos 2 jugadores';
-            startBtn.style.opacity = '0.6';
+            if (!isHost) {
+                startBtn.title = 'Solo el host puede iniciar la partida';
+                startBtn.style.opacity = '0.4';
+            } else {
+                startBtn.title = 'Se necesitan al menos 2 jugadores';
+                startBtn.style.opacity = '0.6';
+            }
         } else {
             startBtn.title = 'Iniciar partida';
             startBtn.style.opacity = '1';
