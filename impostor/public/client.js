@@ -24,6 +24,44 @@ const fullscreenBtn = document.getElementById('fullscreen-btn');
 const iosModal = document.getElementById('ios-fullscreen-modal');
 const closeModalBtn = document.getElementById('close-modal-btn');
 
+// Sistema de notificaciones retro
+function showRetroAlert(message, isError = true) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'alert-overlay';
+    
+    // Crear alerta
+    const alert = document.createElement('div');
+    alert.className = 'retro-alert';
+    
+    alert.innerHTML = `
+        <div class="retro-alert-message">${message}</div>
+        <button class="retro-alert-btn">CONTINUAR</button>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(alert);
+    
+    // Animación de entrada
+    setTimeout(() => {
+        alert.style.opacity = '1';
+        alert.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
+    
+    // Botón de cierre
+    const closeBtn = alert.querySelector('.retro-alert-btn');
+    closeBtn.addEventListener('click', () => {
+        document.body.removeChild(overlay);
+        document.body.removeChild(alert);
+    });
+    
+    // Cerrar al hacer clic en el overlay
+    overlay.addEventListener('click', () => {
+        document.body.removeChild(overlay);
+        document.body.removeChild(alert);
+    });
+}
+
 // Inicializar socket
 function initializeSocket() {
     socket = io();
@@ -84,7 +122,7 @@ function initializeSocket() {
     });
     
     socket.on('error', (message) => {
-        alert(message);
+        showRetroAlert(message);
     });
     
     socket.on('disconnect', () => {
@@ -230,7 +268,7 @@ function showScreen(screenId) {
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
     if (!hostName) {
-        alert('Por favor, ingresa tu nombre');
+        showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
         return;
     }
     
@@ -243,12 +281,12 @@ function joinGame() {
     const code = document.getElementById('room-code-input').value.trim();
     
     if (!playerName) {
-        alert('Por favor, ingresa tu nombre');
+        showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
         return;
     }
     
     if (!code || code.length !== 4 || isNaN(code)) {
-        alert('Por favor, ingresa un código de sala válido (4 dígitos)');
+        showRetroAlert('CÓDIGO DE SALA INVÁLIDO<br>DEBE SER 4 DÍGITOS');
         return;
     }
     
@@ -258,7 +296,7 @@ function joinGame() {
 
 function startGame() {
     if (players.length < 2) {
-        alert('Se necesitan al menos 2 jugadores para comenzar');
+        showRetroAlert('SE NECESITAN AL MENOS<br>2 JUGADORES');
         return;
     }
     
@@ -297,7 +335,7 @@ function resetGame() {
     
     playerList.innerHTML = '';
     gamePlayerList.innerHTML = '';
-    wordDisplay.textContent = 'Esperando palabra...';
+    wordDisplay.textContent = 'ESPERANDO PALABRA...';
     wordDisplay.classList.remove('impostor');
     roundNumberDisplay.textContent = '1';
     roomCodeDisplay.textContent = '0000';
