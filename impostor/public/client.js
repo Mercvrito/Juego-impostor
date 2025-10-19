@@ -93,73 +93,10 @@ function adjustLayoutNoScroll() {
 window.addEventListener('orientationchange', handleOrientationChange);
 window.addEventListener('resize', handleOrientationChange);
 
-// Sistema de notificaciones retro - COMPLETAMENTE CORREGIDO
+// Sistema de notificaciones retro - ELIMINADO
 function showRetroAlert(message, isError = true) {
-    // Crear overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'alert-overlay';
-    
-    // Crear alerta
-    const alert = document.createElement('div');
-    alert.className = 'retro-alert';
-    
-    alert.innerHTML = `
-        <div class="retro-alert-message">${message}</div>
-        <button class="retro-alert-btn">CONTINUAR</button>
-    `;
-    
-    // Añadir al DOM
-    document.body.appendChild(overlay);
-    document.body.appendChild(alert);
-    
-    // Función para cerrar la alerta
-    function closeAlert() {
-        if (document.body.contains(overlay)) {
-            document.body.removeChild(overlay);
-        }
-        if (document.body.contains(alert)) {
-            document.body.removeChild(alert);
-        }
-    }
-    
-    // Configurar eventos para el botón CONTINUAR
-    const closeBtn = alert.querySelector('.retro-alert-btn');
-    
-    // Evento CLICK para ratón
-    closeBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        closeAlert();
-    });
-    
-    // Eventos TÁCTILES para móviles
-    closeBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.style.background = 'linear-gradient(to bottom, #664444, #331111)';
-    }, { passive: false });
-    
-    closeBtn.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.style.background = 'linear-gradient(to bottom, #553333, #220000)';
-        closeAlert();
-    }, { passive: false });
-    
-    // Cerrar al hacer click en el overlay
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) {
-            closeAlert();
-        }
-    });
-    
-    // Eventos táctiles para el overlay
-    overlay.addEventListener('touchstart', function(e) {
-        if (e.target === overlay) {
-            e.preventDefault();
-            closeAlert();
-        }
-    }, { passive: false });
+    // Esta función ahora no hace nada
+    console.log('Notificación eliminada:', message);
 }
 
 // Inicializar socket
@@ -226,22 +163,22 @@ function initializeSocket() {
     
     socket.on('new-word-changed', (data) => {
         console.log('🔤 Nueva palabra:', data.message);
-        showRetroAlert('🔄 PALABRA CAMBIADA<br>RONDA ' + data.roundNumber, false);
+        // Notificación eliminada
     });
     
     socket.on('player-left', (playerName) => {
         console.log('🚪 Jugador abandonó:', playerName);
-        showRetroAlert(`🚪 ${playerName}<br>HA ABANDONADO LA SALA`, false);
+        // Notificación eliminada
     });
     
     socket.on('error', (message) => {
         console.log('❌ Error del servidor:', message);
-        showRetroAlert(message);
+        // Notificación eliminada
     });
     
     socket.on('disconnect', () => {
         console.log('❌ Desconectado del servidor');
-        showRetroAlert('🔌 DESCONECTADO DEL SERVIDOR<br>RECONECTANDO...');
+        // Notificación eliminada
         setTimeout(() => {
             location.reload();
         }, 3000);
@@ -630,13 +567,11 @@ function createGame() {
     
     if (!hostName) {
         console.log('❌ Nombre vacío');
-        showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
         return;
     }
     
     if (hostName.length > 15) {
         console.log('❌ Nombre demasiado largo');
-        showRetroAlert('NOMBRE DEMASIADO LARGO<br>MÁXIMO 15 CARACTERES');
         return;
     }
     
@@ -654,7 +589,6 @@ function createGame() {
             console.log('📤 Emitido create-room con nombre:', hostName);
         } else {
             console.error('❌ Socket no conectado');
-            showRetroAlert('ERROR DE CONEXIÓN<br>INTENTA DE NUEVO');
         }
     }, 100);
 }
@@ -667,19 +601,16 @@ function joinGame() {
     
     if (!playerName) {
         console.log('❌ Nombre vacío');
-        showRetroAlert('POR FAVOR, INGRESA TU NOMBRE');
         return;
     }
     
     if (playerName.length > 15) {
         console.log('❌ Nombre demasiado largo');
-        showRetroAlert('NOMBRE DEMASIADO LARGO<br>MÁXIMO 15 CARACTERES');
         return;
     }
     
     if (!code || code.length !== 4 || isNaN(code)) {
         console.log('❌ Código inválido:', code);
-        showRetroAlert('CÓDIGO DE SALA INVÁLIDO<br>DEBE SER 4 DÍGITOS');
         return;
     }
     
@@ -697,7 +628,6 @@ function joinGame() {
             console.log('📤 Emitido join-room con código:', code, 'y nombre:', playerName);
         } else {
             console.error('❌ Socket no conectado');
-            showRetroAlert('ERROR DE CONEXIÓN<br>INTENTA DE NUEVO');
         }
     }, 100);
 }
@@ -707,13 +637,11 @@ function startGame() {
     
     if (players.length < 2) {
         console.log('❌ Jugadores insuficientes:', players.length);
-        showRetroAlert('SE NECESITAN AL MENOS<br>2 JUGADORES');
         return;
     }
     
     if (!socket || !socket.connected) {
         console.error('❌ Socket no conectado');
-        showRetroAlert('ERROR DE CONEXIÓN');
         return;
     }
     
@@ -726,13 +654,11 @@ function requestNewWord() {
     
     if (!socket || !socket.connected) {
         console.error('❌ Socket no conectado');
-        showRetroAlert('ERROR DE CONEXIÓN');
         return;
     }
     
     if (!isHost) {
         console.log('❌ No eres el host');
-        showRetroAlert('SOLO EL HOST PUEDE<br>CAMBIAR LA PALABRA');
         return;
     }
     
