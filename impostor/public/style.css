@@ -332,6 +332,10 @@ body.standalone .fullscreen-btn {
     75% { opacity: 0.9; }
 }
 
+/* ===========================================
+   CONTENEDOR PRINCIPAL Y PANTALLAS - CORREGIDOS
+   =========================================== */
+
 .container {
     width: 100%;
     max-width: 800px;
@@ -347,9 +351,245 @@ body.standalone .fullscreen-btn {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 180px);
     overflow: hidden;
 }
+
+.screen {
+    display: none;
+    position: relative;
+    animation: crtOn 0.5s ease-out;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 300px;
+}
+
+@keyframes crtOn {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===========================================
+   PANTALLA PRINCIPAL - CENTRADO PERFECTO
+   =========================================== */
+
+#main-screen.active {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 30px;
+}
+
+#main-screen h2 {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+#main-screen .btn-container {
+    margin-top: 0;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* ===========================================
+   PANTALLAS DE CREAR/UNIRSE - LAYOUT OPTIMIZADO
+   =========================================== */
+
+#create-screen.active,
+#join-screen.active {
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+#create-screen .input-group,
+#join-screen .input-group {
+    margin-bottom: 15px;
+}
+
+#create-screen .btn-container,
+#join-screen .btn-container {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+/* ===========================================
+   PANTALLA DE LOBBY - LAYOUT OPTIMIZADO
+   =========================================== */
+
+#lobby-screen.active {
+    justify-content: flex-start;
+    gap: 15px;
+}
+
+.lobby-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.lobby-header > div {
+    width: 100%;
+    text-align: center;
+}
+
+.players-count {
+    margin-top: 10px;
+}
+
+#lobby-screen h3 {
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+#lobby-screen .player-list {
+    flex: 1;
+    min-height: 150px;
+    max-height: 30vh;
+    margin: 10px 0;
+}
+
+#lobby-screen .btn-container {
+    margin-top: auto;
+    padding-top: 15px;
+    flex-shrink: 0;
+}
+
+/* ===========================================
+   PANTALLA DE JUEGO - LAYOUT OPTIMIZADO SIN SCROLL
+   =========================================== */
+
+#game-screen.active {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 0;
+    gap: 10px;
+}
+
+.game-header {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--retro-dark);
+    border: 2px solid var(--retro-border);
+    gap: 15px;
+}
+
+.room-code-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.code-label {
+    font-weight: bold;
+    font-size: clamp(0.8rem, 3vw, 0.95rem);
+    color: var(--retro-white);
+    text-transform: uppercase;
+}
+
+.code-display-small {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    font-weight: bold;
+    letter-spacing: 3px;
+    background: #000;
+    padding: 10px 20px;
+    min-width: 80px;
+    text-align: center;
+    border: 2px solid var(--retro-border);
+    color: var(--retro-glow);
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 10px var(--retro-glow);
+    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.round-info {
+    text-align: center;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    color: var(--retro-white);
+    background: #000;
+    padding: 10px 20px;
+    border: 2px solid var(--retro-border);
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
+    width: 100%;
+}
+
+.word-display {
+    flex-shrink: 0;
+    margin: 10px 0;
+    min-height: 100px;
+    max-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.3rem, 5vw, 2rem) !important;
+    text-align: center;
+    font-weight: bold;
+    padding: 20px 15px;
+    background: #000;
+    border-radius: 0;
+    border: 3px solid var(--retro-border);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 255, 0, 0.1),
+        0 0 20px rgba(0, 255, 0, 0.2);
+    color: var(--retro-white);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    font-family: 'VT323', monospace;
+    line-height: 1.3;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+#game-screen h3 {
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+#game-player-list {
+    flex: 1;
+    min-height: 150px;
+    max-height: 35vh;
+    margin: 5px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#host-controls {
+    flex-shrink: 0;
+    margin: 10px 0;
+    display: none;
+}
+
+#game-screen .btn-container {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+/* ===========================================
+   ESTILOS COMUNES
+   =========================================== */
 
 h2 {
     margin-bottom: 20px;
@@ -383,27 +623,6 @@ h3 {
     letter-spacing: 1px;
     text-shadow: 0 0 5px var(--retro-glow);
     font-size: clamp(1rem, 4vw, 1.2rem);
-}
-
-.screen {
-    display: none;
-    position: relative;
-    animation: crtOn 0.5s ease-out;
-    flex: 1;
-    width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 300px;
-}
-
-@keyframes crtOn {
-    0% { opacity: 0; transform: scale(0.9); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-.active {
-    display: flex;
-    flex-direction: column;
 }
 
 .retro-btn {
@@ -503,6 +722,13 @@ h3 {
 .input-group {
     margin-bottom: 20px;
     width: 100%;
+    text-align: center;
+}
+
+.input-group label {
+    display: block;
+    text-align: center;
+    margin-bottom: 8px;
 }
 
 label {
@@ -528,6 +754,7 @@ label {
     font-family: 'Courier New', monospace;
     box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
     min-height: 50px;
+    text-align: center;
 }
 
 .retro-input:focus {
@@ -547,7 +774,7 @@ label {
 .code-display {
     font-size: clamp(2.5rem, 12vw, 4rem);
     text-align: center;
-    margin: 20px 0;
+    margin: 15px auto;
     font-weight: bold;
     letter-spacing: 6px;
     background: #000;
@@ -562,6 +789,8 @@ label {
     position: relative;
     animation: flicker 3s infinite;
     word-break: break-all;
+    width: fit-content;
+    min-width: 200px;
 }
 
 .player-list {
@@ -576,6 +805,7 @@ label {
     box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.1);
     flex: 1;
     min-height: 100px;
+    text-align: left;
 }
 
 .player-item {
@@ -641,32 +871,6 @@ label {
     text-transform: uppercase;
 }
 
-.word-display {
-    font-size: clamp(1.5rem, 6vw, 2.5rem);
-    text-align: center;
-    margin: 25px 0;
-    font-weight: bold;
-    padding: 25px 15px;
-    background: #000;
-    border-radius: 0;
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid var(--retro-border);
-    box-shadow: 
-        inset 0 0 30px rgba(0, 255, 0, 0.1),
-        0 0 20px rgba(0, 255, 0, 0.2);
-    color: var(--retro-white);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    font-family: 'VT323', monospace;
-    line-height: 1.3;
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
-
 .word-display::before {
     content: '';
     position: absolute;
@@ -695,104 +899,6 @@ label {
     25% { transform: translateX(-2px); }
     50% { transform: translateX(2px); }
     75% { transform: translateX(-1px); }
-}
-
-/* Estilos para el lobby */
-.lobby-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    background: var(--retro-dark);
-    padding: 20px 15px;
-    border: 2px solid var(--retro-border);
-    gap: 15px;
-}
-
-.lobby-header p {
-    color: var(--retro-white);
-    text-shadow: 0 0 5px var(--retro-glow);
-    margin-bottom: 10px;
-    font-size: clamp(0.9rem, 3.5vw, 1rem);
-    text-align: center;
-    width: 100%;
-}
-
-.players-count {
-    background: linear-gradient(to bottom, #333, #000);
-    padding: 12px 20px;
-    border-radius: 0;
-    font-weight: bold;
-    color: var(--retro-glow);
-    border: 2px solid var(--retro-border);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-    text-transform: uppercase;
-    text-align: center;
-    width: 100%;
-}
-
-/* Estilos para el game header */
-.game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    background: var(--retro-dark);
-    padding: 15px;
-    border: 2px solid var(--retro-border);
-    gap: 15px;
-}
-
-.room-code-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-}
-
-.code-label {
-    font-weight: bold;
-    font-size: clamp(0.8rem, 3vw, 0.95rem);
-    color: var(--retro-white);
-    text-transform: uppercase;
-}
-
-.code-display-small {
-    font-size: clamp(1.2rem, 5vw, 1.6rem);
-    font-weight: bold;
-    letter-spacing: 3px;
-    background: #000;
-    padding: 10px 20px;
-    min-width: 80px;
-    text-align: center;
-    border: 2px solid var(--retro-border);
-    color: var(--retro-glow);
-    font-family: 'VT323', monospace;
-    text-shadow: 0 0 10px var(--retro-glow);
-    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
-}
-
-.round-info {
-    text-align: center;
-    font-size: clamp(1rem, 4vw, 1.3rem);
-    color: var(--retro-white);
-    background: #000;
-    padding: 10px 20px;
-    border: 2px solid var(--retro-border);
-    font-weight: bold;
-    text-transform: uppercase;
-    box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
-    width: 100%;
-}
-
-/* Ocultar controles de host por defecto */
-#host-controls {
-    display: none;
 }
 
 /* Notificaciones estilo retro */
@@ -875,80 +981,6 @@ label {
 
 .player-list::-webkit-scrollbar-thumb:hover {
     background: var(--retro-glow);
-}
-
-/* ===========================================
-   CORRECCIONES PARA ORIENTACIÓN VERTICAL
-   =========================================== */
-
-/* Reset de altura para orientación vertical */
-@media (orientation: portrait) {
-    body {
-        height: 100vh;
-        min-height: -webkit-fill-available;
-        overflow: hidden;
-    }
-    
-    .container {
-        max-height: calc(100vh - 180px) !important;
-        height: calc(100vh - 180px) !important;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-    
-    .screen.active {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-    }
-}
-
-/* ===========================================
-   CORRECCIONES ESPECÍFICAS PARA PANTALLA DE JUEGO
-   =========================================== */
-
-#game-screen.active {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding-bottom: 10px;
-}
-
-/* Header del juego - fijo en la parte superior */
-.game-header {
-    flex-shrink: 0;
-    margin-bottom: 15px;
-}
-
-/* Contenedor de palabra - tamaño fijo */
-.word-display {
-    flex-shrink: 0;
-    margin: 15px 0;
-    min-height: 100px;
-    max-height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Lista de jugadores - con scroll */
-#game-player-list {
-    flex: 1;
-    min-height: 150px;
-    max-height: 40vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin: 10px 0;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Controles - fijos en la parte inferior */
-#game-screen .btn-container {
-    flex-shrink: 0;
-    margin-top: auto;
-    padding-top: 10px;
 }
 
 /* ===========================================
@@ -1195,8 +1227,11 @@ label {
    PREVENIR SCROLL EN EL BODY Y CONTENEDOR PRINCIPAL
    =========================================== */
 
-body {
-    overflow: hidden;
+html, body {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 .container {
@@ -1225,4 +1260,25 @@ body {
 .word-display {
     will-change: transform;
     transform: translateZ(0);
+}
+
+/* ===========================================
+   ALTURAS MÍNIMAS PARA EVITAR COLAPSO
+   =========================================== */
+
+#main-screen.active {
+    min-height: 200px;
+}
+
+#create-screen.active,
+#join-screen.active {
+    min-height: 300px;
+}
+
+#lobby-screen.active {
+    min-height: 400px;
+}
+
+#game-screen.active {
+    min-height: 450px;
 }

@@ -37,54 +37,34 @@ function handleOrientationChange() {
     // Ajustar layout después de un breve delay
     clearTimeout(orientationTimer);
     orientationTimer = setTimeout(() => {
-        adjustLayout();
+        adjustLayoutNoScroll();
         document.body.classList.remove('orientation-change');
     }, 300);
+}
+
+// Función mejorada para ajustar el layout sin scroll
+function adjustLayoutNoScroll() {
+    const container = document.querySelector('.container');
+    const currentScreen = document.querySelector('.screen.active');
+    
+    if (container && currentScreen) {
+        // Forzar el recálculo de alturas
+        container.style.display = 'none';
+        container.offsetHeight; // Trigger reflow
+        container.style.display = 'flex';
+        
+        // Ajustar específicamente la lista de jugadores
+        const playerList = currentScreen.querySelector('.player-list');
+        if (playerList) {
+            const availableHeight = container.offsetHeight - playerList.offsetTop - 100;
+            playerList.style.maxHeight = Math.max(150, availableHeight) + 'px';
+        }
+    }
 }
 
 // Detectar cambios de orientación
 window.addEventListener('orientationchange', handleOrientationChange);
 window.addEventListener('resize', handleOrientationChange);
-
-// Función mejorada para ajustar el layout
-function adjustLayout() {
-    const container = document.querySelector('.container');
-    const header = document.querySelector('.header');
-    
-    if (container && header) {
-        const headerHeight = header.offsetHeight;
-        const windowHeight = window.innerHeight;
-        
-        // Calcular altura máxima basada en orientación
-        let maxContainerHeight;
-        if (window.innerHeight > window.innerWidth) {
-            // Portrait
-            maxContainerHeight = windowHeight - headerHeight - 20;
-        } else {
-            // Landscape
-            maxContainerHeight = windowHeight - headerHeight - 15;
-        }
-        
-        container.style.maxHeight = maxContainerHeight + 'px';
-        container.style.height = maxContainerHeight + 'px';
-        
-        // Ajustar específicamente la lista de jugadores en la pantalla de juego
-        const gamePlayerList = document.getElementById('game-player-list');
-        if (gamePlayerList && currentScreen === 'game-screen') {
-            const gameHeader = document.querySelector('.game-header');
-            const wordDisplay = document.querySelector('.word-display');
-            const btnContainer = document.querySelector('#game-screen .btn-container');
-            
-            if (gameHeader && wordDisplay && btnContainer) {
-                const usedHeight = gameHeader.offsetHeight + wordDisplay.offsetHeight + 
-                                 btnContainer.offsetHeight + 60; // Margenes y padding
-                
-                const availableHeight = maxContainerHeight - usedHeight;
-                gamePlayerList.style.maxHeight = Math.max(150, availableHeight) + 'px';
-            }
-        }
-    }
-}
 
 // Sistema de notificaciones retro
 function showRetroAlert(message, isError = true) {
@@ -175,7 +155,7 @@ function initializeSocket() {
         console.log(`¡Ronda ${roundNumber} iniciada!`);
         
         // Ajustar layout después de cambiar a pantalla de juego
-        setTimeout(adjustLayout, 100);
+        setTimeout(adjustLayoutNoScroll, 100);
     });
     
     socket.on('new-word-changed', (data) => {
@@ -201,7 +181,7 @@ function initializeSocket() {
 // Event Listeners del DOM
 document.addEventListener('DOMContentLoaded', function() {
     // Ajustar layout inicial
-    adjustLayout();
+    adjustLayoutNoScroll();
     window.addEventListener('resize', handleOrientationChange);
 
     // Botones principales
@@ -316,7 +296,7 @@ function showScreen(screenId) {
     currentScreen = screenId;
     
     // Ajustar layout después de cambiar de pantalla
-    setTimeout(adjustLayout, 100);
+    setTimeout(adjustLayoutNoScroll, 100);
 }
 
 function createGame() {

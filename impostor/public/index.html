@@ -50,6 +50,7 @@
     </div>
     
     <div class="container">
+        <!-- PANTALLA PRINCIPAL - CENTRADA -->
         <div id="main-screen" class="screen active">
             <div class="vignette"></div>
             <h2>¿QUÉ QUIERES HACER?</h2>
@@ -59,6 +60,7 @@
             </div>
         </div>
         
+        <!-- PANTALLA CREAR PARTIDA -->
         <div id="create-screen" class="screen">
             <div class="vignette"></div>
             <h2>CREAR PARTIDA</h2>
@@ -66,10 +68,13 @@
                 <label for="host-name">TU NOMBRE:</label>
                 <input type="text" id="host-name" placeholder="INGRESA TU NOMBRE" maxlength="15" class="retro-input">
             </div>
-            <button id="create-game-btn" class="btn retro-btn">CREAR SALA</button>
-            <button id="back-to-main-btn-1" class="btn retro-btn danger">VOLVER</button>
+            <div class="btn-container">
+                <button id="create-game-btn" class="btn retro-btn">CREAR SALA</button>
+                <button id="back-to-main-btn-1" class="btn retro-btn danger">VOLVER</button>
+            </div>
         </div>
         
+        <!-- PANTALLA LOBBY -->
         <div id="lobby-screen" class="screen">
             <div class="vignette"></div>
             <h2>SALA DE ESPERA</h2>
@@ -92,6 +97,7 @@
             </div>
         </div>
         
+        <!-- PANTALLA UNIRSE A PARTIDA -->
         <div id="join-screen" class="screen">
             <div class="vignette"></div>
             <h2>UNIRSE A PARTIDA</h2>
@@ -103,10 +109,13 @@
                 <label for="room-code-input">CÓDIGO DE SALA:</label>
                 <input type="text" id="room-code-input" placeholder="INGRESA EL CÓDIGO" maxlength="4" class="retro-input">
             </div>
-            <button id="join-game-btn" class="btn retro-btn">UNIRSE</button>
-            <button id="back-to-main-btn-2" class="btn retro-btn danger">VOLVER</button>
+            <div class="btn-container">
+                <button id="join-game-btn" class="btn retro-btn">UNIRSE</button>
+                <button id="back-to-main-btn-2" class="btn retro-btn danger">VOLVER</button>
+            </div>
         </div>
         
+        <!-- PANTALLA DE JUEGO -->
         <div id="game-screen" class="screen">
             <div class="vignette"></div>
             <div class="game-header">
