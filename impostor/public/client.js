@@ -93,11 +93,13 @@ function adjustLayoutNoScroll() {
 window.addEventListener('orientationchange', handleOrientationChange);
 window.addEventListener('resize', handleOrientationChange);
 
-// Sistema de notificaciones retro
+// Sistema de notificaciones retro - COMPLETAMENTE CORREGIDO
 function showRetroAlert(message, isError = true) {
+    // Crear overlay
     const overlay = document.createElement('div');
     overlay.className = 'alert-overlay';
     
+    // Crear alerta
     const alert = document.createElement('div');
     alert.className = 'retro-alert';
     
@@ -106,24 +108,58 @@ function showRetroAlert(message, isError = true) {
         <button class="retro-alert-btn">CONTINUAR</button>
     `;
     
+    // Añadir al DOM
     document.body.appendChild(overlay);
     document.body.appendChild(alert);
     
-    setTimeout(() => {
-        alert.style.opacity = '1';
-        alert.style.transform = 'translate(-50%, -50%) scale(1)';
-    }, 10);
+    // Función para cerrar la alerta
+    function closeAlert() {
+        if (document.body.contains(overlay)) {
+            document.body.removeChild(overlay);
+        }
+        if (document.body.contains(alert)) {
+            document.body.removeChild(alert);
+        }
+    }
     
+    // Configurar eventos para el botón CONTINUAR
     const closeBtn = alert.querySelector('.retro-alert-btn');
-    closeBtn.addEventListener('click', () => {
-        document.body.removeChild(overlay);
-        document.body.removeChild(alert);
+    
+    // Evento CLICK para ratón
+    closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAlert();
     });
     
-    overlay.addEventListener('click', () => {
-        document.body.removeChild(overlay);
-        document.body.removeChild(alert);
+    // Eventos TÁCTILES para móviles
+    closeBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.style.background = 'linear-gradient(to bottom, #664444, #331111)';
+    }, { passive: false });
+    
+    closeBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.style.background = 'linear-gradient(to bottom, #553333, #220000)';
+        closeAlert();
+    }, { passive: false });
+    
+    // Cerrar al hacer click en el overlay
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeAlert();
+        }
     });
+    
+    // Eventos táctiles para el overlay
+    overlay.addEventListener('touchstart', function(e) {
+        if (e.target === overlay) {
+            e.preventDefault();
+            closeAlert();
+        }
+    }, { passive: false });
 }
 
 // Inicializar socket
@@ -212,16 +248,124 @@ function initializeSocket() {
     });
 }
 
+// ===========================================
+// MEJORAS ESPECÍFICAS PARA PANTALLAS TÁCTILES
+// ===========================================
+
+// Variable para prevenir múltiples taps
+let isTouchActive = false;
+let touchTimer = null;
+
+// Función para manejar eventos táctiles en botones - PREVENCIÓN DE MÚLTIPLES TAPS
+function setupTouchEvents() {
+    const buttons = document.querySelectorAll('.retro-btn');
+    
+    buttons.forEach(btn => {
+        // Remover event listeners anteriores para evitar duplicados
+        btn.removeEventListener('touchstart', handleTouchStart);
+        btn.removeEventListener('touchend', handleTouchEnd);
+        btn.removeEventListener('touchcancel', handleTouchCancel);
+        
+        // Prevenir comportamiento por defecto en touch pero mantener el efecto original
+        btn.addEventListener('touchstart', handleTouchStart, { passive: false });
+        btn.addEventListener('touchend', handleTouchEnd, { passive: false });
+        btn.addEventListener('touchcancel', handleTouchCancel, { passive: false });
+    });
+}
+
+// Manejo de touchstart - PREVENIR MÚLTIPLES TAPS
+function handleTouchStart(e) {
+    if (isTouchActive) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isTouchActive = true;
+    
+    // Añadir clase activa para el efecto de brillo
+    this.classList.add('touch-active');
+    
+    // Limpiar timer anterior
+    if (touchTimer) {
+        clearTimeout(touchTimer);
+    }
+    
+    // Timer de seguridad para resetear el estado
+    touchTimer = setTimeout(() => {
+        isTouchActive = false;
+        this.classList.remove('touch-active');
+    }, 1000);
+}
+
+// Manejo de touchend - EJECUTAR SOLO UNA VEZ
+function handleTouchEnd(e) {
+    if (!isTouchActive) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Quitar clase activa
+    this.classList.remove('touch-active');
+    
+    // Limpiar timer
+    if (touchTimer) {
+        clearTimeout(touchTimer);
+        touchTimer = null;
+    }
+    
+    // Simular click después del feedback visual - SOLO UNA VEZ
+    setTimeout(() => {
+        if (isTouchActive) {
+            this.click();
+            isTouchActive = false;
+        }
+    }, 50);
+}
+
+// Manejo de touchcancel - RESETEAR ESTADO
+function handleTouchCancel(e) {
+    e.preventDefault();
+    this.classList.remove('touch-active');
+    isTouchActive = false;
+    
+    if (touchTimer) {
+        clearTimeout(touchTimer);
+        touchTimer = null;
+    }
+}
+
 // Event Listeners del DOM
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 UNDERCOVER 88 - Inicializando...');
+    
+    // Configurar eventos táctiles inmediatamente
+    setupTouchEvents();
+    
+    // Re-configurar eventos cuando cambien las pantallas
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                setTimeout(setupTouchEvents, 50);
+            }
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
     
     // Ajustar layout inicial
     setTimeout(adjustLayoutNoScroll, 100);
     window.addEventListener('resize', handleOrientationChange);
 
     // ===========================================
-    // BOTONES PRINCIPALES - CORREGIDOS
+    // BOTONES PRINCIPALES - EVENTOS CLICK ORIGINALES
     // ===========================================
     
     // Botones de pantalla principal
@@ -230,7 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (createBtn) {
         createBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🎮 Botón CREAR PARTIDA clickeado');
             showScreen('create-screen');
         });
@@ -240,7 +383,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (joinBtn) {
         joinBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔗 Botón UNIRSE A PARTIDA clickeado');
             showScreen('join-screen');
         });
@@ -254,7 +396,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (createGameBtn) {
         createGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔄 Botón CREAR SALA clickeado');
             createGame();
         });
@@ -264,7 +405,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (joinGameBtn) {
         joinGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔗 Botón UNIRSE clickeado');
             joinGame();
         });
@@ -278,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (startGameBtn) {
         startGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🎯 Botón INICIAR PARTIDA clickeado');
             startGame();
         });
@@ -288,7 +427,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (newWordBtn) {
         newWordBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔤 Botón NUEVA PALABRA clickeado');
             requestNewWord();
         });
@@ -304,7 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (backToMain1) {
         backToMain1.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔙 Botón VOLVER 1 clickeado');
             showScreen('main-screen');
         });
@@ -312,7 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (backToMain2) {
         backToMain2.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🔙 Botón VOLVER 2 clickeado');
             showScreen('main-screen');
         });
@@ -320,7 +456,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (leaveLobbyBtn) {
         leaveLobbyBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🚪 Botón SALIR del lobby clickeado');
             leaveLobby();
         });
@@ -328,7 +463,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (leaveGameBtn) {
         leaveGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('🚪 Botón ABANDONAR PARTIDA clickeado');
             leaveGame();
         });
@@ -337,7 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Pantalla completa
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('📱 Botón PANTALLA COMPLETA clickeado');
             toggleFullscreen();
         });
@@ -345,7 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
             console.log('❌ Botón CERRAR MODAL clickeado');
             iosModal.style.display = 'none';
         });
@@ -720,25 +852,6 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-
-// Prevenir acciones no deseadas en móviles
-document.addEventListener('touchstart', function(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        return;
-    }
-    
-    if (e.target.classList.contains('retro-btn')) {
-        e.preventDefault();
-    }
-}, { passive: false });
-
-// Manejar el evento antes de que la página se descargue
-window.addEventListener('beforeunload', function(e) {
-    if (socket && socket.connected) {
-        socket.disconnect();
-        console.log('🔌 Socket desconectado antes de abandonar la página');
-    }
-});
 
 // Inicialización final cuando todo está cargado
 window.addEventListener('load', function() {
