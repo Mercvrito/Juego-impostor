@@ -56,6 +56,29 @@ app.get('/android-chrome-512x512.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
+// ✅ RUTAS ADICIONALES PARA SEO Y FAVICONS
+app.get('/browserconfig.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
+});
+
+// Servir diferentes tamaños de favicon (puedes usar el mismo si no tienes diferentes tamaños)
+app.get('/mstile-70x70.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/mstile-150x150.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/mstile-310x310.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/mstile-310x150.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
 // ✅ RUTAS PARA PWA
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
