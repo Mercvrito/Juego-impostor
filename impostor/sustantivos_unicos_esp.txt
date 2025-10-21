@@ -70,7 +70,6 @@ Chiles en nogada
 Enchiladas
 Quesadillas
 Burritos
-Feijoada
 Bandeja paisa
 Pollo a la brasa
 Huevos revueltos
@@ -424,7 +423,6 @@ Carretilla
 Sombrilla
 Parrilla
 Llaves
-Candado
 Linterna
 Encendedor
 Paraguas
@@ -471,7 +469,6 @@ Cristiano Ronaldo
 Bill Gates
 Marilyn Monroe
 Pablo Picasso
-Serena Williams
 Isaac Newton
 Titanic
 The Godfather
@@ -492,8 +489,6 @@ Finding Nemo
 The Lion King
 Pulp Fiction
 Back to the Future
-Spider-Man
-Harry Potter
 Sherlock Holmes
 Batman
 Darth Vader
@@ -533,7 +528,6 @@ Leonardo DiCaprio
 Serena Williams
 Billie Eilish
 Mark Zuckerberg
-Oprah Winfrey
 Malala Yousafzai
 Tiger Woods
 Adele
@@ -554,7 +548,6 @@ Winnie the Pooh
 Scooby-Doo
 Jack Sparrow
 Minions
-Elsa
 Pikachu
 Goku
 SpongeBob SquarePants
@@ -563,3 +556,441 @@ Shrek
 Optimus Prime
 Mario
 Lara Croft
+Motocicleta
+Autobús
+Camión
+Tren
+Tranvía
+Helicóptero
+Avión
+Barco
+Submarino
+Velero
+Yate
+Canoa
+Tractor
+Ambulancia
+Camioneta
+Limusina
+Patinete eléctrico
+Coche deportivo
+Caravana
+Globo aerostático
+Rascacielos
+Catedral
+Iglesia
+Templo
+Monasterio
+Castillo
+Palacio
+Biblioteca
+Universidad
+Escuela
+Hospital
+Estadio
+Puente
+Túnel
+Aeropuerto
+Puerto
+Fábrica
+Mercado
+Hotel
+Teatro
+Cine
+Restaurante
+Centro comercial
+Museo de arte moderno
+Doctor
+Enfermero
+Ingeniero
+Arquitecto
+Abogado
+Profesor
+Panadero
+Carpintero
+Electricista
+Fontanero
+Peluquero
+Chef
+Mecánico
+Agricultor
+Veterinario
+Policía
+Bombero
+Soldado
+Actor
+Cantante
+Bailarín
+Programador
+Diseñador gráfico
+Psicólogo
+Astronauta
+Periodista
+Fotógrafo
+Piloto
+Traductor
+Contador
+Perro
+Gato
+Caballo
+Elefante
+León
+Tigre
+Oso
+Lobo
+Zorro
+Jirafa
+Cebra
+Rinoceronte
+Hipopótamo
+Cocodrilo
+Pingüino
+Delfín
+Ballena
+Águila
+Búho
+Gorila
+Koala
+Canguro
+Panda
+Camello
+Tortuga
+Rosa
+Tulipán
+Orquídea
+Cactus
+Bambú
+Palmera
+Roble
+Pino
+Cerezo
+Loto
+Helecho
+Lavanda
+Girasol
+Olivo
+Menta
+Aloe vera
+Césped
+Trigo
+Café
+Algodón
+Fútbol
+Baloncesto
+Tenis
+Golf
+Natación
+Boxeo
+Atletismo
+Ciclismo
+Patinaje
+Surf
+Esquí
+Escalada
+Senderismo
+Yoga
+Artes marciales
+Béisbol
+Vóleibol
+Rugby
+Esgrima
+Guitarra
+Piano
+Violín
+Trompeta
+Flauta
+Saxofón
+Arpa
+Clarinete
+Acordeón
+Tambor
+Ukelele
+Cello
+Maracas
+Xilófono
+Montaña
+Río
+Lago
+Mar
+Océano
+Desierto
+Volcán
+Bosque
+Selva
+Cueva
+Cascada
+Valle
+Isla
+Glaciar
+Acantilado
+Playa
+Campo
+Duna
+Roca
+Nube
+Amor
+Esperanza
+Libertad
+Sabiduría
+Valentía
+Paciencia
+Felicidad
+Tristeza
+Miedo
+Orgullo
+Honestidad
+Justicia
+Compasión
+Gratitud
+Curiosidad
+Energía
+Paz
+Rencor
+Deseo
+Fe
+Sueño
+Inspiración
+Éxito
+Fracaso
+Silencio
+Destino
+Memoria
+Pasión
+Respeto
+Ternura
+Microscopio
+Telescopio
+Satélite
+Robot
+Dron
+Nanotecnología
+Circuito
+Chip
+Antena
+Base de datos
+Servidor
+Algoritmo
+Inteligencia artificial
+Software
+Hardware
+Ciberseguridad
+Código
+Pantalla táctil
+Red neuronal
+Laboratorio
+Sensor
+Imán
+Átomo
+Molécula
+Energía solar
+Energía eólica
+Biotecnología
+Genética
+Computación cuántica
+Impresora 3D
+Botella
+Silla de ruedas
+Mochila escolar
+Agenda digital
+Cepillo
+Candado
+Cuchara de madera
+Bolsa de papel
+Caja
+Reloj de pulsera
+Sombrilla plegable
+Borrador
+Marcador permanente
+Escoba
+Cubo
+Toalla de baño
+Plato hondo
+Linterna recargable
+Estuche
+Cuerda
+Cinta adhesiva
+Papel reciclado
+Grapa
+Clip metálico
+Candil
+Jarrón
+Ropa interior
+Sombrero de paja
+Cinturón de cuero
+Catarata
+Delta
+Arrecife
+Manglar
+Bahía
+Pantano
+Pradera
+Tundra
+Sabana
+Cañón
+Laguna
+Bosque tropical
+Montaña nevada
+Acantilado marino
+Cueva submarina
+Glaciar ártico
+Cascada escondida
+Desierto de sal
+Valle profundo
+Cordillera
+Playa volcánica
+Isla desierta
+Oasis
+Lago helado
+Río caudaloso
+Campo de flores
+Cráter
+Géiser
+Estepa
+Pintura
+Escultura
+Fotografía
+Mural
+Grabado
+Collage
+Lienzo
+Pincel
+Ópera
+Ballet
+Sinfonía
+Teatro clásico
+Poema
+Novela
+Ensayo
+Guion
+Documental
+Película animada
+Cómic
+Revista literaria
+Museo virtual
+Exposición
+Concierto
+Micrófono
+Cámara fotográfica
+Trilogía
+Actuación
+Canción
+Partitura
+Galería
+Halcón
+Ciervo
+Zorro ártico
+Foca
+Morsa
+Tiburón
+Ballena azul
+Cabra
+Oveja
+Cerdo
+Burro
+Pato
+Ganso
+Gallina
+Pavo
+Periquito
+Canario
+Iguana
+Camaleón
+Serpiente
+Rana
+Sapo
+Mariposa
+Abeja
+Hormiga
+Mosquito
+Caracol
+Cangrejo
+Medusa
+Pulpo
+Balonmano
+Críquet
+Ping pong
+Squash
+Patinaje artístico
+Snowboard
+Skateboarding
+Kárate
+Taekwondo
+Judo
+Capoeira
+Gimnasia
+Triatlón
+Maratón
+Carrera de obstáculos
+Ciclismo de montaña
+Espeleología
+Kitesurf
+Rafting
+Canotaje
+Pesca deportiva
+Billar
+Bowling
+Ala delta
+Escalada en roca
+Paintball
+Paracaidismo
+Windsurf
+Acuatlón
+Tranvía eléctrico
+Metro
+Teleférico
+Funicular
+Motoneta
+Coche híbrido
+Camión cisterna
+Grúa
+Tren bala
+Submarino nuclear
+Barca
+Catamarán
+Lancha rápida
+Crucero
+Avión comercial
+Jet privado
+Helicóptero de rescate
+Carreta
+Motocross
+Vehículo blindado
+Trineo
+Carro de bomberos
+Patrulla
+Tren de carga
+Bicicleta eléctrica
+Motocicleta de montaña
+Segway
+Coche autónomo
+Autobús escolar
+Taxi acuático
+Fiesta
+Desfile
+Carnaval
+Festival
+Boda
+Cumpleaños
+Graduación
+Funeral
+Aniversario
+Feria
+Competencia
+Reunión
+Debate
+Ceremonia
+Protesta
+Congreso
+Torneo
+Celebración
+Ritual
+Matrimonio
+Inauguración
+Despedida
+Cena
+Picnic
+Encuentro
+Marcha
+Convención
+Concierto benéfico
+Espectáculo
