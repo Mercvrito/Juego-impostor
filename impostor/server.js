@@ -79,6 +79,17 @@ app.get('/mstile-310x150.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
+// ✅ RUTA PARA OBTENER PALABRAS (PARA MODO LOCAL)
+app.get('/palabras', (req, res) => {
+    try {
+        const palabras = cargarPalabras();
+        res.json(palabras);
+    } catch (error) {
+        console.log('❌ Error enviando palabras:', error);
+        res.json([]);
+    }
+});
+
 // ✅ RUTAS PARA PWA
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
@@ -109,8 +120,8 @@ function cargarPalabras() {
         const palabras = contenido.split('\n')
             .map(palabra => palabra.trim())
             .filter(palabra => palabra.length > 0)
-            .filter(palabra => palabra.length >= 3 && palabra.length <= 12)
-            .slice(0, 3000);
+            .filter(palabra => palabra.length >= 3 && palabra.length <= 20)
+            .slice(0, 2000); // Limitar a 2000 palabras para modo local
         
         console.log(`✅ Cargadas ${palabras.length} palabras del diccionario`);
         return palabras;
@@ -119,7 +130,8 @@ function cargarPalabras() {
         return [
             "Elefante", "Astronauta", "Helicóptero", "Biblioteca", "Chocolate",
             "Montaña", "Telescopio", "Mariposa", "Universo", "Pirámide",
-            "Guitarra", "Paraguas", "Canguro", "Volcán", "Arcoíris"
+            "Guitarra", "Paraguas", "Canguro", "Volcán", "Arcoíris",
+            "Pizza", "Fútbol", "Computadora", "Música", "Viaje"
         ];
     }
 }
@@ -292,6 +304,7 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
     console.log(`📚 Diccionario cargado: ${words.length} palabras disponibles`);
+    console.log(`🔤 Modo local habilitado: /palabras`);
     console.log(`📱 PWA habilitada: /manifest.json`);
     console.log(`⚙️ Service Worker: /service-worker.js`);
     console.log(`🎯 Favicon disponible: /favicon.png`);

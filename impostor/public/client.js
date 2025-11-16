@@ -8,525 +8,21 @@ let impostorIndex = -1;
 let roundNumber = 1;
 let socket = null;
 
+// Variables para modo local
+let localPlayers = [];
+let currentLocalPlayerIndex = 0;
+let localCurrentWord = '';
+let localImpostorIndex = -1;
+let localRoundNumber = 1;
+let localWords = [];
+
 // Elementos DOM
 const screens = document.querySelectorAll('.screen');
-const roomCodeDisplay = document.getElementById('room-code');
-const playersCountDisplay = document.getElementById('players-count');
-const playerList = document.getElementById('player-list');
-const gamePlayerList = document.getElementById('game-player-list');
-const wordDisplay = document.getElementById('word-display');
-const roundNumberDisplay = document.getElementById('round-number');
-const gameRoomCodeDisplay = document.getElementById('game-room-code');
-const hostControls = document.getElementById('host-controls');
-const startGameBtn = document.getElementById('start-game-btn'); // Añadido para referencia
-
-// Elementos para pantalla completa
-const fullscreenBtn = document.getElementById('fullscreen-btn');
-const iosModal = document.getElementById('ios-fullscreen-modal');
-const closeModalBtn = document.getElementById('close-modal-btn');
 
 // ===========================================
-// MANEJO DE CAMBIOS DE ORIENTACIÓN
+// FUNCIONES BÁSICAS DEL JUEGO
 // ===========================================
 
-let orientationTimer;
-
-function handleOrientationChange() {
-    document.body.classList.add('orientation-change');
-    clearTimeout(orientationTimer);
-    orientationTimer = setTimeout(() => {
-        adjustLayoutNoScroll();
-        document.body.classList.remove('orientation-change');
-    }, 300);
-}
-
-// Función mejorada para ajustar el layout - TODO en una pantalla
-function adjustLayoutNoScroll() {
-    const container = document.querySelector('.container');
-    const currentScreen = document.querySelector('.screen.active');
-    
-    if (container && currentScreen) {
-        const headerHeight = document.querySelector('.header').offsetHeight;
-        const windowHeight = window.innerHeight;
-        const availableHeight = windowHeight - headerHeight - 15;
-        
-        container.style.maxHeight = availableHeight + 'px';
-        container.style.height = availableHeight + 'px';
-        
-        const playerList = currentScreen.querySelector('.player-list');
-        if (playerList) {
-            let availableListHeight;
-            
-            if (currentScreen.id === 'lobby-screen') {
-                const lobbyHeader = currentScreen.querySelector('.lobby-header');
-                const h3 = currentScreen.querySelector('h3');
-                const btnContainer = currentScreen.querySelector('.btn-container');
-                
-                const usedHeight = lobbyHeader.offsetHeight + h3.offsetHeight + 
-                                 btnContainer.offsetHeight + 40;
-                availableListHeight = availableHeight - usedHeight;
-            } else if (currentScreen.id === 'game-screen') {
-                const gameHeader = currentScreen.querySelector('.game-header');
-                const wordDisplay = currentScreen.querySelector('.word-display');
-                const h3 = currentScreen.querySelector('h3');
-                const hostControls = currentScreen.querySelector('#host-controls');
-                const btnContainer = currentScreen.querySelector('.btn-container');
-                
-                let usedHeight = gameHeader.offsetHeight + wordDisplay.offsetHeight + 
-                               h3.offsetHeight + btnContainer.offsetHeight + 30;
-                
-                if (hostControls.style.display !== 'none') {
-                    usedHeight += hostControls.offsetHeight;
-                }
-                
-                availableListHeight = availableHeight - usedHeight;
-            } else {
-                availableListHeight = Math.min(120, availableHeight * 0.3);
-            }
-            
-            playerList.style.maxHeight = Math.max(60, availableListHeight) + 'px';
-            playerList.style.minHeight = '60px';
-        }
-    }
-}
-
-// Detectar cambios de orientación
-window.addEventListener('orientationchange', handleOrientationChange);
-window.addEventListener('resize', handleOrientationChange);
-
-// Sistema de notificaciones retro - ELIMINADO
-function showRetroAlert(message, isError = true) {
-    // Esta función ahora no hace nada
-    console.log('Notificación eliminada:', message);
-}
-
-// Inicializar socket
-function initializeSocket() {
-    socket = io();
-    
-    socket.on('connect', () => {
-        console.log('✅ Conectado al servidor');
-    });
-    
-    socket.on('room-created', (code) => {
-        roomCode = code;
-        roomCodeDisplay.textContent = code;
-        gameRoomCodeDisplay.textContent = code;
-        isHost = true;
-        showScreen('lobby-screen');
-        console.log('🎮 Sala creada exitosamente:', code);
-        
-        setTimeout(adjustLayoutNoScroll, 100);
-    });
-    
-    socket.on('joined-room', (code) => {
-        roomCode = code;
-        roomCodeDisplay.textContent = code;
-        gameRoomCodeDisplay.textContent = code;
-        isHost = false;
-        showScreen('lobby-screen');
-        console.log('👤 Te has unido a la sala:', code);
-        
-        setTimeout(adjustLayoutNoScroll, 100);
-    });
-    
-    socket.on('players-updated', (playersList) => {
-        players = playersList;
-        updatePlayerList();
-        playersCountDisplay.textContent = players.length;
-        console.log('📊 Jugadores actualizados:', players.length);
-        
-        setTimeout(adjustLayoutNoScroll, 50);
-    });
-    
-    socket.on('round-started', (data) => {
-        roundNumber = data.roundNumber;
-        currentWord = data.word;
-        
-        wordDisplay.textContent = currentWord;
-        if (data.isImpostor) {
-            wordDisplay.classList.add('impostor');
-            console.log('🕵️ Eres el IMPOSTOR!');
-        } else {
-            wordDisplay.classList.remove('impostor');
-            console.log('🎯 Tu palabra es:', currentWord);
-        }
-        
-        roundNumberDisplay.textContent = roundNumber;
-        updateGamePlayerList(data.players);
-        showScreen('game-screen');
-        
-        hostControls.style.display = isHost ? 'flex' : 'none';
-        console.log(`🔄 Ronda ${roundNumber} iniciada!`);
-        
-        setTimeout(adjustLayoutNoScroll, 100);
-    });
-    
-    socket.on('new-word-changed', (data) => {
-        console.log('🔤 Nueva palabra:', data.message);
-        // Notificación eliminada
-    });
-    
-    socket.on('player-left', (playerName) => {
-        console.log('🚪 Jugador abandonó:', playerName);
-        // Notificación eliminada
-    });
-    
-    socket.on('error', (message) => {
-        console.log('❌ Error del servidor:', message);
-        // Notificación eliminada
-    });
-    
-    socket.on('disconnect', () => {
-        console.log('❌ Desconectado del servidor');
-        // Notificación eliminada
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
-    });
-}
-
-// ===========================================
-// MEJORAS ESPECÍFICAS PARA PANTALLAS TÁCTILES
-// ===========================================
-
-// Variable para prevenir múltiples taps
-let isTouchActive = false;
-let touchTimer = null;
-
-// Función para manejar eventos táctiles en botones - PREVENCIÓN DE MÚLTIPLES TAPS
-function setupTouchEvents() {
-    const buttons = document.querySelectorAll('.retro-btn');
-    
-    buttons.forEach(btn => {
-        // Remover event listeners anteriores para evitar duplicados
-        btn.removeEventListener('touchstart', handleTouchStart);
-        btn.removeEventListener('touchend', handleTouchEnd);
-        btn.removeEventListener('touchcancel', handleTouchCancel);
-        
-        // Prevenir comportamiento por defecto en touch pero mantener el efecto original
-        btn.addEventListener('touchstart', handleTouchStart, { passive: false });
-        btn.addEventListener('touchend', handleTouchEnd, { passive: false });
-        btn.addEventListener('touchcancel', handleTouchCancel, { passive: false });
-    });
-}
-
-// Manejo de touchstart - PREVENIR MÚLTIPLES TAPS
-function handleTouchStart(e) {
-    if (isTouchActive) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-    }
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    isTouchActive = true;
-    
-    // Añadir clase activa para el efecto de brillo
-    this.classList.add('touch-active');
-    
-    // Limpiar timer anterior
-    if (touchTimer) {
-        clearTimeout(touchTimer);
-    }
-    
-    // Timer de seguridad para resetear el estado
-    touchTimer = setTimeout(() => {
-        isTouchActive = false;
-        this.classList.remove('touch-active');
-    }, 1000);
-}
-
-// Manejo de touchend - EJECUTAR SOLO UNA VEZ
-function handleTouchEnd(e) {
-    if (!isTouchActive) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-    }
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Quitar clase activa
-    this.classList.remove('touch-active');
-    
-    // Limpiar timer
-    if (touchTimer) {
-        clearTimeout(touchTimer);
-        touchTimer = null;
-    }
-    
-    // Simular click después del feedback visual - SOLO UNA VEZ
-    setTimeout(() => {
-        if (isTouchActive) {
-            this.click();
-            isTouchActive = false;
-        }
-    }, 50);
-}
-
-// Manejo de touchcancel - RESETEAR ESTADO
-function handleTouchCancel(e) {
-    e.preventDefault();
-    this.classList.remove('touch-active');
-    isTouchActive = false;
-    
-    if (touchTimer) {
-        clearTimeout(touchTimer);
-        touchTimer = null;
-    }
-}
-
-// Event Listeners del DOM
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 UNDERCOVER 88 - Inicializando...');
-    
-    // Configurar eventos táctiles inmediatamente
-    setupTouchEvents();
-    
-    // Re-configurar eventos cuando cambien las pantallas
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-                setTimeout(setupTouchEvents, 50);
-            }
-        });
-    });
-    
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // Ajustar layout inicial
-    setTimeout(adjustLayoutNoScroll, 100);
-    window.addEventListener('resize', handleOrientationChange);
-
-    // ===========================================
-    // BOTONES PRINCIPALES - EVENTOS CLICK ORIGINALES
-    // ===========================================
-    
-    // Botones de pantalla principal
-    const createBtn = document.getElementById('create-btn');
-    const joinBtn = document.getElementById('join-btn');
-    
-    if (createBtn) {
-        createBtn.addEventListener('click', function(e) {
-            console.log('🎮 Botón CREAR PARTIDA clickeado');
-            showScreen('create-screen');
-        });
-    } else {
-        console.error('❌ Botón crear-btn no encontrado');
-    }
-    
-    if (joinBtn) {
-        joinBtn.addEventListener('click', function(e) {
-            console.log('🔗 Botón UNIRSE A PARTIDA clickeado');
-            showScreen('join-screen');
-        });
-    } else {
-        console.error('❌ Botón join-btn no encontrado');
-    }
-
-    // Botones de crear/unirse
-    const createGameBtn = document.getElementById('create-game-btn');
-    const joinGameBtn = document.getElementById('join-game-btn');
-    
-    if (createGameBtn) {
-        createGameBtn.addEventListener('click', function(e) {
-            console.log('🔄 Botón CREAR SALA clickeado');
-            createGame();
-        });
-    } else {
-        console.error('❌ Botón create-game-btn no encontrado');
-    }
-    
-    if (joinGameBtn) {
-        joinGameBtn.addEventListener('click', function(e) {
-            console.log('🔗 Botón UNIRSE clickeado');
-            joinGame();
-        });
-    } else {
-        console.error('❌ Botón join-game-btn no encontrado');
-    }
-
-    // Botones de juego
-    const startGameBtn = document.getElementById('start-game-btn');
-    const newWordBtn = document.getElementById('new-word-btn');
-    
-    if (startGameBtn) {
-        startGameBtn.addEventListener('click', function(e) {
-            console.log('🎯 Botón INICIAR PARTIDA clickeado');
-            startGame();
-        });
-    } else {
-        console.error('❌ Botón start-game-btn no encontrado');
-    }
-    
-    if (newWordBtn) {
-        newWordBtn.addEventListener('click', function(e) {
-            console.log('🔤 Botón NUEVA PALABRA clickeado');
-            requestNewWord();
-        });
-    } else {
-        console.error('❌ Botón new-word-btn no encontrado');
-    }
-
-    // Botones de navegación
-    const backToMain1 = document.getElementById('back-to-main-btn-1');
-    const backToMain2 = document.getElementById('back-to-main-btn-2');
-    const leaveLobbyBtn = document.getElementById('leave-lobby-btn');
-    const leaveGameBtn = document.getElementById('leave-game-btn');
-    
-    if (backToMain1) {
-        backToMain1.addEventListener('click', function(e) {
-            console.log('🔙 Botón VOLVER 1 clickeado');
-            showScreen('main-screen');
-        });
-    }
-    
-    if (backToMain2) {
-        backToMain2.addEventListener('click', function(e) {
-            console.log('🔙 Botón VOLVER 2 clickeado');
-            showScreen('main-screen');
-        });
-    }
-    
-    if (leaveLobbyBtn) {
-        leaveLobbyBtn.addEventListener('click', function(e) {
-            console.log('🚪 Botón SALIR del lobby clickeado');
-            leaveLobby();
-        });
-    }
-    
-    if (leaveGameBtn) {
-        leaveGameBtn.addEventListener('click', function(e) {
-            console.log('🚪 Botón ABANDONAR PARTIDA clickeado');
-            leaveGame();
-        });
-    }
-
-    // Pantalla completa
-    if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', function(e) {
-            console.log('📱 Botón PANTALLA COMPLETA clickeado');
-            toggleFullscreen();
-        });
-    }
-    
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', function(e) {
-            console.log('❌ Botón CERRAR MODAL clickeado');
-            iosModal.style.display = 'none';
-        });
-    }
-
-    // Permitir enviar formularios con Enter
-    const hostNameInput = document.getElementById('host-name');
-    const playerNameInput = document.getElementById('player-name');
-    const roomCodeInput = document.getElementById('room-code-input');
-    
-    if (hostNameInput) {
-        hostNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                console.log('↵ Enter en nombre de host');
-                createGame();
-            }
-        });
-    }
-    
-    if (playerNameInput) {
-        playerNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                console.log('↵ Enter en nombre de jugador');
-                joinGame();
-            }
-        });
-    }
-    
-    if (roomCodeInput) {
-        roomCodeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                console.log('↵ Enter en código de sala');
-                joinGame();
-            }
-        });
-    }
-
-    // Ocultar botón de pantalla completa si está en modo PWA
-    if (isStandalone()) {
-        document.body.classList.add('standalone');
-        console.log('📱 Modo PWA detectado');
-    }
-
-    resetGame();
-    console.log('✅ Todos los event listeners configurados');
-});
-
-function isIOS() {
-    return [
-        'iPad Simulator',
-        'iPhone Simulator',
-        'iPod Simulator',
-        'iPad',
-        'iPhone',
-        'iPod'
-    ].includes(navigator.platform) || 
-    (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-}
-
-function isStandalone() {
-    return (window.matchMedia('(display-mode: standalone)').matches) || 
-           (window.navigator.standalone) || 
-           (document.referrer.includes('android-app://'));
-}
-
-function toggleFullscreen() {
-    if (isIOS()) {
-        iosModal.style.display = 'flex';
-        return;
-    }
-
-    if (!document.fullscreenElement) {
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) {
-            docEl.requestFullscreen();
-        } else if (docEl.webkitRequestFullscreen) {
-            docEl.webkitRequestFullscreen();
-        } else if (docEl.msRequestFullscreen) {
-            docEl.msRequestFullscreen();
-        }
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
-    }
-}
-
-document.addEventListener('fullscreenchange', updateFullscreenButton);
-document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
-document.addEventListener('msfullscreenchange', updateFullscreenButton);
-
-function updateFullscreenButton() {
-    if (document.fullscreenElement || 
-        document.webkitFullscreenElement || 
-        document.msFullscreenElement) {
-        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
-        fullscreenBtn.title = 'Salir de pantalla completa';
-    } else {
-        fullscreenBtn.innerHTML = '<span class="fullscreen-icon">⛶</span>';
-        fullscreenBtn.title = 'Pantalla completa';
-    }
-}
-
-// Funciones principales del juego
 function showScreen(screenId) {
     console.log('🔄 Cambiando a pantalla:', screenId);
     
@@ -539,57 +35,97 @@ function showScreen(screenId) {
         targetScreen.classList.add('active');
         currentScreen = screenId;
         
-        // Ajustar layout después de cambiar de pantalla
-        setTimeout(adjustLayoutNoScroll, 100);
+        setTimeout(adjustLayout, 100);
         
         // Limpiar inputs al cambiar de pantalla
         if (screenId === 'create-screen') {
             document.getElementById('host-name').value = '';
-            setTimeout(() => {
-                document.getElementById('host-name').focus();
-            }, 300);
         } else if (screenId === 'join-screen') {
             document.getElementById('player-name').value = '';
             document.getElementById('room-code-input').value = '';
-            setTimeout(() => {
-                document.getElementById('player-name').focus();
-            }, 300);
+        } else if (screenId === 'local-setup-screen') {
+            document.getElementById('local-player-name').value = '';
+            // Cargar jugadores guardados al mostrar la pantalla
+            loadSavedPlayers();
+        }
+    }
+}
+
+function adjustLayout() {
+    // Ajuste básico del layout
+    const container = document.querySelector('.container');
+    if (container) {
+        const headerHeight = document.querySelector('.header').offsetHeight;
+        const windowHeight = window.innerHeight;
+        const availableHeight = windowHeight - headerHeight - 20;
+        container.style.maxHeight = availableHeight + 'px';
+    }
+}
+
+// ===========================================
+// MODO ONLINE
+// ===========================================
+
+function initializeSocket() {
+    socket = io();
+    
+    socket.on('connect', () => {
+        console.log('✅ Conectado al servidor');
+    });
+    
+    socket.on('room-created', (code) => {
+        roomCode = code;
+        document.getElementById('room-code').textContent = code;
+        document.getElementById('game-room-code').textContent = code;
+        isHost = true;
+        showScreen('lobby-screen');
+    });
+    
+    socket.on('joined-room', (code) => {
+        roomCode = code;
+        document.getElementById('room-code').textContent = code;
+        document.getElementById('game-room-code').textContent = code;
+        isHost = false;
+        showScreen('lobby-screen');
+    });
+    
+    socket.on('players-updated', (playersList) => {
+        players = playersList;
+        updatePlayerList();
+        document.getElementById('players-count').textContent = players.length;
+    });
+    
+    socket.on('round-started', (data) => {
+        roundNumber = data.roundNumber;
+        currentWord = data.word;
+        
+        const wordDisplay = document.getElementById('word-display');
+        wordDisplay.textContent = currentWord;
+        if (data.isImpostor) {
+            wordDisplay.classList.add('impostor');
+        } else {
+            wordDisplay.classList.remove('impostor');
         }
         
-        console.log('✅ Pantalla cambiada a:', screenId);
-    } else {
-        console.error('❌ Pantalla no encontrada:', screenId);
-    }
+        document.getElementById('round-number').textContent = roundNumber;
+        updateGamePlayerList(data.players);
+        showScreen('game-screen');
+        
+        document.getElementById('host-controls').style.display = isHost ? 'flex' : 'none';
+    });
 }
 
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
-    console.log('🎮 Intentando crear juego con nombre:', hostName);
-    
-    if (!hostName) {
-        console.log('❌ Nombre vacío');
-        return;
-    }
-    
-    if (hostName.length > 15) {
-        console.log('❌ Nombre demasiado largo');
-        return;
-    }
-    
-    console.log('✅ Nombre válido, creando sala...');
+    if (!hostName) return;
     
     if (!socket) {
-        console.log('🔌 Inicializando socket...');
         initializeSocket();
     }
     
-    // Pequeño delay para asegurar que el socket esté listo
     setTimeout(() => {
         if (socket && socket.connected) {
             socket.emit('create-room', hostName);
-            console.log('📤 Emitido create-room con nombre:', hostName);
-        } else {
-            console.error('❌ Socket no conectado');
         }
     }, 100);
 }
@@ -598,109 +134,50 @@ function joinGame() {
     const playerName = document.getElementById('player-name').value.trim();
     const code = document.getElementById('room-code-input').value.trim();
     
-    console.log('🔗 Intentando unirse a sala:', code, 'con nombre:', playerName);
-    
-    if (!playerName) {
-        console.log('❌ Nombre vacío');
-        return;
-    }
-    
-    if (playerName.length > 15) {
-        console.log('❌ Nombre demasiado largo');
-        return;
-    }
-    
-    if (!code || code.length !== 4 || isNaN(code)) {
-        console.log('❌ Código inválido:', code);
-        return;
-    }
-    
-    console.log('✅ Datos válidos, uniéndose a sala...');
+    if (!playerName || !code) return;
     
     if (!socket) {
-        console.log('🔌 Inicializando socket...');
         initializeSocket();
     }
     
-    // Pequeño delay para asegurar que el socket esté listo
     setTimeout(() => {
         if (socket && socket.connected) {
             socket.emit('join-room', { roomCode: code, playerName: playerName });
-            console.log('📤 Emitido join-room con código:', code, 'y nombre:', playerName);
-        } else {
-            console.error('❌ Socket no conectado');
         }
     }, 100);
 }
 
 function startGame() {
-    console.log('🎯 Intentando iniciar partida en sala:', roomCode);
-    
-    if (!isHost) {
-        console.log('❌ No eres el host, no puedes iniciar la partida');
-        return;
+    if (!isHost || players.length < 2) return;
+    if (socket && socket.connected) {
+        socket.emit('start-game', roomCode);
     }
-    
-    if (players.length < 2) {
-        console.log('❌ Jugadores insuficientes:', players.length);
-        return;
-    }
-    
-    if (!socket || !socket.connected) {
-        console.error('❌ Socket no conectado');
-        return;
-    }
-    
-    console.log('✅ Iniciando partida...');
-    socket.emit('start-game', roomCode);
 }
 
 function requestNewWord() {
-    console.log('🔤 Solicitando nueva palabra en sala:', roomCode);
-    
-    if (!socket || !socket.connected) {
-        console.error('❌ Socket no conectado');
-        return;
-    }
-    
-    if (!isHost) {
-        console.log('❌ No eres el host');
-        return;
-    }
-    
-    console.log('✅ Solicitando nueva palabra...');
+    if (!isHost || !socket || !socket.connected) return;
     socket.emit('request-new-word', roomCode);
 }
 
 function leaveLobby() {
-    console.log('🚪 Saliendo del lobby...');
-    
     if (socket) {
         socket.disconnect();
         socket = null;
-        console.log('🔌 Socket desconectado');
     }
-    
     showScreen('main-screen');
     resetGame();
 }
 
 function leaveGame() {
-    console.log('🚪 Abandonando partida...');
-    
     if (socket) {
         socket.disconnect();
         socket = null;
-        console.log('🔌 Socket desconectado');
     }
-    
     showScreen('main-screen');
     resetGame();
 }
 
 function resetGame() {
-    console.log('🔄 Reiniciando juego...');
-    
     players = [];
     roomCode = '';
     currentWord = '';
@@ -708,26 +185,27 @@ function resetGame() {
     roundNumber = 1;
     isHost = false;
     
-    playerList.innerHTML = '';
-    gamePlayerList.innerHTML = '';
-    wordDisplay.textContent = 'ESPERANDO PALABRA...';
-    wordDisplay.classList.remove('impostor');
-    roundNumberDisplay.textContent = '1';
-    roomCodeDisplay.textContent = '0000';
-    gameRoomCodeDisplay.textContent = '0000';
-    playersCountDisplay.textContent = '0';
-    hostControls.style.display = 'none';
+    const playerList = document.getElementById('player-list');
+    const gamePlayerList = document.getElementById('game-player-list');
+    const wordDisplay = document.getElementById('word-display');
     
-    // Limpiar inputs
-    document.getElementById('host-name').value = '';
-    document.getElementById('player-name').value = '';
-    document.getElementById('room-code-input').value = '';
+    if (playerList) playerList.innerHTML = '';
+    if (gamePlayerList) gamePlayerList.innerHTML = '';
+    if (wordDisplay) {
+        wordDisplay.textContent = 'ESPERANDO PALABRA...';
+        wordDisplay.classList.remove('impostor');
+    }
     
-    console.log('✅ Juego reiniciado');
+    document.getElementById('round-number').textContent = '1';
+    document.getElementById('room-code').textContent = '0000';
+    document.getElementById('game-room-code').textContent = '0000';
+    document.getElementById('players-count').textContent = '0';
+    document.getElementById('host-controls').style.display = 'none';
 }
 
 function updatePlayerList() {
-    console.log('📊 Actualizando lista de jugadores:', players.length);
+    const playerList = document.getElementById('player-list');
+    if (!playerList) return;
     
     playerList.innerHTML = '';
     players.forEach(player => {
@@ -739,31 +217,11 @@ function updatePlayerList() {
         `;
         playerList.appendChild(li);
     });
-    
-    const startBtn = document.getElementById('start-game-btn');
-    if (startBtn) {
-        // Solo el host puede iniciar la partida
-        startBtn.disabled = !isHost || players.length < 2;
-        
-        if (startBtn.disabled) {
-            if (!isHost) {
-                startBtn.title = 'Solo el host puede iniciar la partida';
-                startBtn.style.opacity = '0.4';
-            } else {
-                startBtn.title = 'Se necesitan al menos 2 jugadores';
-                startBtn.style.opacity = '0.6';
-            }
-        } else {
-            startBtn.title = 'Iniciar partida';
-            startBtn.style.opacity = '1';
-        }
-    }
-    
-    setTimeout(adjustLayoutNoScroll, 50);
 }
 
 function updateGamePlayerList(playersList) {
-    console.log('🎮 Actualizando lista de juego:', playersList.length);
+    const gamePlayerList = document.getElementById('game-player-list');
+    if (!gamePlayerList) return;
     
     gamePlayerList.innerHTML = '';
     playersList.forEach(player => {
@@ -775,41 +233,290 @@ function updateGamePlayerList(playersList) {
         `;
         gamePlayerList.appendChild(li);
     });
-    
-    setTimeout(adjustLayoutNoScroll, 50);
 }
 
-// Registrar Service Worker para PWA
+// ===========================================
+// MODO LOCAL - MEJORADO
+// ===========================================
+
+function loadLocalWords() {
+    // Palabras por defecto para modo local
+    localWords = [
+        "Elefante", "Astronauta", "Helicóptero", "Biblioteca", "Chocolate",
+        "Montaña", "Telescopio", "Mariposa", "Universo", "Pirámide",
+        "Guitarra", "Paraguas", "Canguro", "Volcán", "Arcoíris",
+        "Pizza", "Fútbol", "Computadora", "Música", "Viaje",
+        "Playa", "Bosque", "Castillo", "Dinosaurio", "Robot",
+        "Tesoro", "Misterio", "Aventura", "Fantasma", "Dragón",
+        "Café", "Libro", "Película", "Juego", "Amigo",
+        "Familia", "Comida", "Deporte", "Arte", "Ciencia"
+    ];
+    console.log('✅ Palabras cargadas para modo local:', localWords.length);
+}
+
+// Guardar jugadores en localStorage
+function saveLocalPlayers() {
+    localStorage.setItem('undercover88_localPlayers', JSON.stringify(localPlayers));
+    console.log('💾 Jugadores guardados:', localPlayers);
+}
+
+// Cargar jugadores desde localStorage
+function loadSavedPlayers() {
+    const savedPlayers = localStorage.getItem('undercover88_localPlayers');
+    if (savedPlayers) {
+        localPlayers = JSON.parse(savedPlayers);
+        updateLocalPlayerList();
+        console.log('📂 Jugadores cargados:', localPlayers);
+    }
+}
+
+function addLocalPlayer() {
+    const playerNameInput = document.getElementById('local-player-name');
+    const playerName = playerNameInput.value.trim();
+
+    // Validación silenciosa - sin alertas
+    if (!playerName) {
+        return;
+    }
+
+    if (playerName.length > 15) {
+        return;
+    }
+
+    if (localPlayers.includes(playerName)) {
+        return;
+    }
+
+    localPlayers.push(playerName);
+    playerNameInput.value = '';
+    updateLocalPlayerList();
+    saveLocalPlayers(); // Guardar después de añadir
+    playerNameInput.focus();
+}
+
+function updateLocalPlayerList() {
+    const localPlayerList = document.getElementById('local-player-list');
+    if (!localPlayerList) return;
+
+    localPlayerList.innerHTML = '';
+
+    localPlayers.forEach((player, index) => {
+        const li = document.createElement('li');
+        li.className = 'player-item';
+        li.innerHTML = `
+            <span class="player-name">${player}</span>
+            <button class="remove-player-btn" onclick="removeLocalPlayer(${index})">✕</button>
+        `;
+        localPlayerList.appendChild(li);
+    });
+
+    const startLocalGameBtn = document.getElementById('start-local-game-btn');
+    if (startLocalGameBtn) {
+        startLocalGameBtn.disabled = localPlayers.length < 2;
+    }
+}
+
+function removeLocalPlayer(index) {
+    localPlayers.splice(index, 1);
+    updateLocalPlayerList();
+    saveLocalPlayers(); // Guardar después de eliminar
+}
+
+function startLocalGame() {
+    // Validación silenciosa - sin alertas
+    if (localPlayers.length < 2) {
+        return;
+    }
+
+    localRoundNumber = 1;
+    currentLocalPlayerIndex = 0;
+    generateLocalWord();
+    showScreen('local-game-screen');
+    displayLocalPlayer();
+}
+
+function generateLocalWord() {
+    localCurrentWord = localWords[Math.floor(Math.random() * localWords.length)];
+    localImpostorIndex = Math.floor(Math.random() * localPlayers.length);
+    console.log('🔤 Palabra local:', localCurrentWord, 'Impostor:', localImpostorIndex);
+}
+
+function displayLocalPlayer() {
+    document.getElementById('local-round-number').textContent = localRoundNumber;
+
+    // Ocultar botón "Volver" durante la partida
+    document.getElementById('leave-local-game-btn').style.display = 'none';
+
+    if (currentLocalPlayerIndex < localPlayers.length) {
+        const playerName = localPlayers[currentLocalPlayerIndex];
+        document.getElementById('local-current-player').textContent = playerName;
+        document.getElementById('local-word-display').textContent = 'TOCA PARA VER PALABRA';
+        document.getElementById('local-word-display').className = 'word-display local-normal';
+        document.getElementById('local-word-display').style.cursor = 'pointer';
+        document.getElementById('local-word-display').onclick = revealLocalWord;
+
+        document.getElementById('next-player-btn').style.display = 'none';
+        document.getElementById('new-word-local-btn').style.display = 'none';
+    } else {
+        // Todos los jugadores han visto su palabra - mostrar botón "Volver"
+        document.getElementById('local-current-player').textContent = 'RONDA TERMINADA';
+        document.getElementById('local-word-display').textContent = 'TODOS HAN VISTO SUS PALABRAS';
+        document.getElementById('local-word-display').className = 'word-display local-normal';
+        document.getElementById('local-word-display').style.cursor = 'default';
+        document.getElementById('local-word-display').onclick = null;
+        
+        document.getElementById('next-player-btn').style.display = 'none';
+        document.getElementById('new-word-local-btn').style.display = 'block';
+        document.getElementById('leave-local-game-btn').style.display = 'block'; // Mostrar volver
+    }
+}
+
+function revealLocalWord() {
+    const isImpostor = currentLocalPlayerIndex === localImpostorIndex;
+    const word = isImpostor ? "IMPOSTOR" : localCurrentWord;
+
+    const wordDisplay = document.getElementById('local-word-display');
+    wordDisplay.textContent = word;
+    wordDisplay.className = isImpostor ? 'word-display local-impostor' : 'word-display local-normal';
+    wordDisplay.style.cursor = 'default';
+    wordDisplay.onclick = null;
+
+    document.getElementById('next-player-btn').style.display = 'block';
+}
+
+function nextLocalPlayer() {
+    currentLocalPlayerIndex++;
+    displayLocalPlayer();
+}
+
+function newLocalWord() {
+    localRoundNumber++;
+    currentLocalPlayerIndex = 0;
+    generateLocalWord();
+    displayLocalPlayer();
+}
+
+function leaveLocalGame() {
+    showScreen('local-setup-screen');
+}
+
+function resetLocalGame() {
+    currentLocalPlayerIndex = 0;
+    localCurrentWord = '';
+    localImpostorIndex = -1;
+    localRoundNumber = 1;
+}
+
+// ===========================================
+// PANTALLA COMPLETA
+// ===========================================
+
+function toggleFullscreen() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+        document.getElementById('ios-fullscreen-modal').style.display = 'flex';
+        return;
+    }
+
+    if (!document.fullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
+// ===========================================
+// INICIALIZACIÓN
+// ===========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 UNDERCOVER 88 - Inicializando...');
+    
+    // Cargar palabras para modo local
+    loadLocalWords();
+    
+    // Configurar event listeners básicos
+    setupEventListeners();
+    
+    // Ajustar layout inicial
+    setTimeout(adjustLayout, 100);
+    window.addEventListener('resize', adjustLayout);
+    
+    console.log('✅ Juego inicializado correctamente');
+});
+
+function setupEventListeners() {
+    // Botones principales
+    document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
+    document.getElementById('join-btn').addEventListener('click', () => showScreen('join-screen'));
+    document.getElementById('local-btn').addEventListener('click', () => showScreen('local-setup-screen'));
+
+    // Pantalla crear partida
+    document.getElementById('create-game-btn').addEventListener('click', createGame);
+    document.getElementById('back-to-main-1').addEventListener('click', () => showScreen('main-screen'));
+
+    // Pantalla unirse
+    document.getElementById('join-game-btn').addEventListener('click', joinGame);
+    document.getElementById('back-to-main-2').addEventListener('click', () => showScreen('main-screen'));
+
+    // Pantalla lobby
+    document.getElementById('start-game-btn').addEventListener('click', startGame);
+    document.getElementById('leave-lobby-btn').addEventListener('click', leaveLobby);
+
+    // Pantalla juego online
+    document.getElementById('new-word-btn').addEventListener('click', requestNewWord);
+    document.getElementById('leave-game-btn').addEventListener('click', leaveGame);
+
+    // Pantalla modo local - configuración
+    document.getElementById('add-player-btn').addEventListener('click', addLocalPlayer);
+    document.getElementById('start-local-game-btn').addEventListener('click', startLocalGame);
+    document.getElementById('back-to-main-3').addEventListener('click', () => showScreen('main-screen'));
+
+    // Pantalla juego local
+    document.getElementById('next-player-btn').addEventListener('click', nextLocalPlayer);
+    document.getElementById('new-word-local-btn').addEventListener('click', newLocalWord);
+    document.getElementById('leave-local-game-btn').addEventListener('click', leaveLocalGame);
+
+    // Pantalla completa
+    document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+    document.getElementById('close-modal-btn').addEventListener('click', () => {
+        document.getElementById('ios-fullscreen-modal').style.display = 'none';
+    });
+
+    // Enter en inputs
+    document.getElementById('host-name').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') createGame();
+    });
+    document.getElementById('player-name').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') joinGame();
+    });
+    document.getElementById('room-code-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') joinGame();
+    });
+    document.getElementById('local-player-name').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addLocalPlayer();
+    });
+}
+
+// Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/service-worker.js')
             .then(function(registration) {
-                console.log('✅ ServiceWorker registrado:', registration.scope);
+                console.log('✅ ServiceWorker registrado');
             })
             .catch(function(error) {
                 console.log('❌ Error registrando ServiceWorker:', error);
             });
     });
 }
-
-// Inicialización final cuando todo está cargado
-window.addEventListener('load', function() {
-    console.log('🎉 UNDERCOVER 88 - Juego completamente cargado');
-    
-    // Ajuste final del layout
-    setTimeout(adjustLayoutNoScroll, 200);
-    
-    // Forzar un reflow para asegurar que todo se renderice correctamente
-    document.body.offsetHeight;
-    
-    console.log('✅ Todo listo para jugar!');
-});
-
-// Debug: Verificar que todos los elementos existen
-console.log('🔍 Verificando elementos DOM:');
-console.log('- create-btn:', document.getElementById('create-btn') ? '✅' : '❌');
-console.log('- join-btn:', document.getElementById('join-btn') ? '✅' : '❌');
-console.log('- create-game-btn:', document.getElementById('create-game-btn') ? '✅' : '❌');
-console.log('- join-game-btn:', document.getElementById('join-game-btn') ? '✅' : '❌');
-console.log('- start-game-btn:', document.getElementById('start-game-btn') ? '✅' : '❌');
-console.log('- new-word-btn:', document.getElementById('new-word-btn') ? '✅' : '❌');
