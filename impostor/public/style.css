@@ -1541,3 +1541,261 @@ html, body {
     pointer-events: all;
     transition: all 0.3s ease;
 }
+/* ... (código anterior se mantiene igual) ... */
+
+/* ===========================================
+   CORRECCIONES ESPECÍFICAS PARA PWA
+   =========================================== */
+
+/* Ocultar botón de pantalla completa en modo PWA */
+body.standalone #fullscreen-btn {
+    display: none !important;
+}
+
+/* Eliminar bordes blancos en PWA */
+body.standalone {
+    padding: 0 !important;
+    background: #000000 !important;
+    height: 100vh;
+    min-height: 100vh;
+}
+
+body.standalone .container {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
+    max-height: 100vh !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+}
+
+body.standalone .header {
+    margin: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 2px solid var(--retro-border) !important;
+    border-radius: 0 !important;
+}
+
+/* Asegurar que los efectos CRT cubran toda la pantalla en PWA */
+body.standalone .film-grain,
+body.standalone .crt-curvature,
+body.standalone .tube-glow,
+body.standalone .retro-border,
+body.standalone .crinkle-effect,
+body.standalone .static-noise,
+body.standalone .vignette {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ajustar el retro-border para PWA */
+body.standalone .retro-border {
+    border: 3px solid var(--retro-border) !important;
+    box-shadow: 
+        inset 0 0 30px rgba(0, 255, 0, 0.15),
+        0 0 40px rgba(0, 255, 0, 0.2) !important;
+}
+
+/* Mejorar el efecto CRT en PWA */
+body.standalone .crt-curvature {
+    background: 
+        radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.4) 100%),
+        radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.3) 100%) !important;
+    border-radius: 3% / 2% !important;
+}
+
+/* Ajustar el layout de las pantallas en PWA */
+body.standalone .screen.active {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+body.standalone #main-screen.active {
+    justify-content: center !important;
+    padding: 10px !important;
+}
+
+body.standalone #local-game-screen.active,
+body.standalone #game-screen.active {
+    padding: 5px !important;
+}
+
+/* Asegurar que los botones sean táctiles en PWA */
+body.standalone .retro-btn {
+    min-height: 50px !important;
+    padding: 14px 16px !important;
+    font-size: 15px !important;
+}
+
+/* Mejorar la legibilidad en PWA */
+body.standalone .word-display {
+    font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+    min-height: 80px !important;
+    max-height: 100px !important;
+}
+
+body.standalone .code-display {
+    font-size: clamp(2rem, 9vw, 3rem) !important;
+    padding: 15px 20px !important;
+}
+
+/* Ajustar listas de jugadores en PWA */
+body.standalone .player-list {
+    max-height: 30vh !important;
+    border: 2px solid var(--retro-border) !important;
+}
+
+/* Efectos visuales mejorados para PWA */
+body.standalone .film-grain {
+    opacity: 0.5 !important;
+    animation: grain 0.08s infinite !important;
+}
+
+body.standalone .tube-glow {
+    animation: tubePulse 3s ease-in-out infinite !important;
+    opacity: 0.4 !important;
+}
+
+/* Correcciones para iPhone con notch */
+@supports (padding: max(0px)) {
+    body.standalone {
+        padding-left: max(0px, env(safe-area-inset-left)) !important;
+        padding-right: max(0px, env(safe-area-inset-right)) !important;
+        padding-top: max(0px, env(safe-area-inset-top)) !important;
+        padding-bottom: max(0px, env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* Soporte específico para Safari iOS */
+@supports (-webkit-touch-callout: none) {
+    body.standalone {
+        min-height: -webkit-fill-available !important;
+    }
+    
+    body.standalone .container {
+        min-height: -webkit-fill-available !important;
+    }
+}
+
+/* ===========================================
+   MEJORAS GENERALES DE ESTÉTICA
+   =========================================== */
+
+/* Intensificar efectos CRT para mejor experiencia */
+.film-grain {
+    opacity: 0.4;
+    animation: grain 0.1s infinite;
+}
+
+.tube-glow {
+    opacity: 0.5;
+    animation: tubePulse 3.5s ease-in-out infinite;
+}
+
+.crt-curvature {
+    background: 
+        radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.4) 100%),
+        radial-gradient(circle at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.3) 100%);
+    border-radius: 2.5% / 1.5%;
+}
+
+.retro-border {
+    border: 3px solid var(--retro-border);
+    box-shadow: 
+        inset 0 0 25px rgba(0, 255, 0, 0.15),
+        0 0 35px rgba(0, 255, 0, 0.2);
+}
+
+/* Mejorar el header */
+.header {
+    background: var(--retro-dark);
+    border: 2px solid var(--retro-border);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 0, 0.25),
+        inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Intensificar el efecto del logo */
+.logo-text {
+    text-shadow: 
+        0 0 10px var(--retro-glow),
+        0 0 20px var(--retro-glow),
+        0 0 30px var(--retro-glow),
+        3px 3px 0px #000;
+    animation: glitch 3.5s infinite;
+}
+
+/* Mejorar botones */
+.retro-btn {
+    box-shadow: 
+        3px 3px 0px #000,
+        inset 0 0 12px rgba(0, 255, 0, 0.15),
+        0 0 10px rgba(0, 255, 0, 0.2);
+    border: 2px solid var(--retro-border);
+    transition: all 0.2s ease;
+}
+
+.retro-btn:hover {
+    box-shadow: 
+        3px 3px 0px #000,
+        inset 0 0 20px rgba(0, 255, 0, 0.25),
+        0 0 15px rgba(0, 255, 0, 0.3);
+}
+
+/* Mejorar displays de palabra */
+.word-display {
+    box-shadow: 
+        inset 0 0 25px rgba(0, 255, 0, 0.15),
+        0 0 20px rgba(0, 255, 0, 0.25);
+    border: 2px solid var(--retro-border);
+    background: #000;
+}
+
+/* Ajustes responsivos mejorados */
+@media (max-width: 768px) {
+    body:not(.standalone) {
+        padding: 3px;
+    }
+    
+    body:not(.standalone) .container {
+        padding: 8px 6px;
+        margin-top: 3px;
+    }
+    
+    .retro-btn {
+        min-height: 48px;
+        padding: 14px 12px;
+        font-size: 14px;
+    }
+    
+    .word-display {
+        min-height: 70px;
+        max-height: 85px;
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .logo-text {
+        font-size: 1.4rem;
+    }
+    
+    .retro-btn {
+        padding: 12px 10px;
+        font-size: 13px;
+        min-height: 45px;
+    }
+}

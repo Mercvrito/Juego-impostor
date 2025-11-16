@@ -520,3 +520,74 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+// ... (código anterior se mantiene igual) ...
+
+// ===========================================
+// DETECCIÓN MEJORADA DE PWA
+// ===========================================
+
+function isStandalone() {
+    // Métodos mejorados para detectar modo PWA
+    return (window.matchMedia('(display-mode: standalone)').matches) ||
+           (window.navigator.standalone === true) ||
+           (document.referrer.includes('android-app://')) ||
+           (window.location.search.includes('mode=standalone')) ||
+           (document.referrer.includes('utm_source=pwa'));
+}
+
+function applyPWAstyles() {
+    if (isStandalone()) {
+        document.body.classList.add('standalone');
+        console.log('📱 Modo PWA detectado - Aplicando estilos especiales');
+        
+        // Forzar un reflow para asegurar que los estilos se apliquen
+        document.body.offsetHeight;
+        
+        // Ajuste adicional del layout
+        setTimeout(() => {
+            adjustLayout();
+            // Asegurar que el contenedor ocupe toda la pantalla
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.height = '100vh';
+                container.style.maxHeight = '100vh';
+            }
+        }, 100);
+    }
+}
+
+// ===========================================
+// INICIALIZACIÓN MEJORADA
+// ===========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 UNDERCOVER 88 - Inicializando...');
+    
+    // Aplicar estilos PWA inmediatamente
+    applyPWAstyles();
+    
+    // Cargar palabras para modo local
+    loadLocalWords();
+    
+    // Configurar event listeners básicos
+    setupEventListeners();
+    
+    // Ajustar layout inicial
+    setTimeout(() => {
+        adjustLayout();
+        // Ajuste adicional para PWA
+        if (isStandalone()) {
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.height = '100vh';
+                container.style.maxHeight = '100vh';
+            }
+        }
+    }, 100);
+    
+    window.addEventListener('resize', adjustLayout);
+    
+    console.log('✅ Juego inicializado correctamente');
+});
+
+// ... (el resto del código se mantiene igual) ...
