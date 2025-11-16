@@ -15,6 +15,7 @@ let localCurrentWord = '';
 let localImpostorIndex = -1;
 let localRoundNumber = 1;
 let localWords = [];
+let localUsedWords = []; // Para evitar repeticiones en modo local
 
 // Elementos DOM
 const screens = document.querySelectorAll('.screen');
@@ -236,22 +237,39 @@ function updateGamePlayerList(playersList) {
 }
 
 // ===========================================
-// MODO LOCAL - MEJORADO
+// MODO LOCAL - MEJORADO CON PALABRAS DEL SERVIDOR
 // ===========================================
 
 function loadLocalWords() {
-    // Palabras por defecto para modo local
-    localWords = [
-        "Elefante", "Astronauta", "Helicóptero", "Biblioteca", "Chocolate",
-        "Montaña", "Telescopio", "Mariposa", "Universo", "Pirámide",
-        "Guitarra", "Paraguas", "Canguro", "Volcán", "Arcoíris",
-        "Pizza", "Fútbol", "Computadora", "Música", "Viaje",
-        "Playa", "Bosque", "Castillo", "Dinosaurio", "Robot",
-        "Tesoro", "Misterio", "Aventura", "Fantasma", "Dragón",
-        "Café", "Libro", "Película", "Juego", "Amigo",
-        "Familia", "Comida", "Deporte", "Arte", "Ciencia"
-    ];
-    console.log('✅ Palabras cargadas para modo local:', localWords.length);
+    console.log('📥 Cargando palabras del servidor...');
+    
+    // Hacer petición al servidor para obtener las palabras
+    fetch('/palabras')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(words => {
+            if (words && Array.isArray(words) && words.length > 0) {
+                localWords = words;
+                console.log(`✅ ${localWords.length} palabras cargadas del servidor`);
+            } else {
+                throw new Error('No se recibieron palabras válidas');
+            }
+        })
+        .catch(error => {
+            console.log('❌ Error cargando palabras del servidor:', error);
+            // Usar palabras por defecto como fallback
+            localWords = [
+                "Elefante", "Astronauta", "Helicóptero", "Biblioteca", "Chocolate",
+                "Montaña", "Telescopio", "Mariposa", "Universo", "Pirámide",
+                "Guitarra", "Paraguas", "Canguro", "Volcán", "Arcoíris",
+                "Pizza", "Fútbol", "Computadora", "Música", "Viaje"
+            ];
+            console.log('🔄 Usando palabras por defecto:', localWords.length);
+        });
 }
 
 // Guardar jugadores en localStorage
@@ -268,6 +286,34 @@ function loadSavedPlayers() {
         updateLocalPlayerList();
         console.log('📂 Jugadores cargados:', localPlayers);
     }
+}
+
+// Obtener palabra aleatoria que no se haya usado recientemente
+function getLocalRandomWord() {
+    if (localWords.length === 0) {
+        return "PalabraSecreta";
+    }
+    
+    // Si hemos usado muchas palabras, limpiar algunas para evitar memoria infinita
+    if (localUsedWords.length > localWords.length * 0.7) {
+        // Mantener solo las últimas 10 palabras usadas
+        localUsedWords = localUsedWords.slice(-10);
+    }
+    
+    // Filtrar palabras no usadas recientemente
+    let availableWords = localWords.filter(word => !localUsedWords.includes(word));
+    
+    // Si no hay palabras disponibles, reiniciar el historial
+    if (availableWords.length === 0) {
+        availableWords = localWords;
+        localUsedWords = [];
+    }
+    
+    const randomWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+    localUsedWords.push(randomWord);
+    
+    console.log(`🔤 Palabra seleccionada: ${randomWord} (${availableWords.length} disponibles)`);
+    return randomWord;
 }
 
 function addLocalPlayer() {
@@ -328,6 +374,9 @@ function startLocalGame() {
         return;
     }
 
+    // Reiniciar palabras usadas al comenzar nueva partida
+    localUsedWords = [];
+    
     localRoundNumber = 1;
     currentLocalPlayerIndex = 0;
     generateLocalWord();
@@ -336,9 +385,9 @@ function startLocalGame() {
 }
 
 function generateLocalWord() {
-    localCurrentWord = localWords[Math.floor(Math.random() * localWords.length)];
+    localCurrentWord = getLocalRandomWord();
     localImpostorIndex = Math.floor(Math.random() * localPlayers.length);
-    console.log('🔤 Palabra local:', localCurrentWord, 'Impostor:', localImpostorIndex);
+    console.log(`🎮 Ronda ${localRoundNumber} - Palabra: ${localCurrentWord} - Impostor: ${localImpostorIndex}`);
 }
 
 function displayLocalPlayer() {
@@ -408,6 +457,36 @@ function resetLocalGame() {
 }
 
 // ===========================================
+// DETECCIÓN MEJORADA DE PWA
+// ===========================================
+
+function isStandalone() {
+    return (window.matchMedia('(display-mode: standalone)').matches) ||
+           (window.navigator.standalone === true) ||
+           (document.referrer.includes('android-app://'));
+}
+
+function applyPWAstyles() {
+    if (isStandalone()) {
+        document.body.classList.add('standalone');
+        console.log('📱 Modo PWA detectado - Aplicando estilos especiales');
+        
+        // Forzar un reflow para asegurar que los estilos se apliquen
+        document.body.offsetHeight;
+        
+        // Ajuste adicional del layout
+        setTimeout(() => {
+            adjustLayout();
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.height = '100vh';
+                container.style.maxHeight = '100vh';
+            }
+        }, 100);
+    }
+}
+
+// ===========================================
 // PANTALLA COMPLETA
 // ===========================================
 
@@ -442,14 +521,27 @@ function toggleFullscreen() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 UNDERCOVER 88 - Inicializando...');
     
-    // Cargar palabras para modo local
+    // Aplicar estilos PWA inmediatamente
+    applyPWAstyles();
+    
+    // Cargar palabras para modo local (DESDE EL SERVIDOR)
     loadLocalWords();
     
     // Configurar event listeners básicos
     setupEventListeners();
     
     // Ajustar layout inicial
-    setTimeout(adjustLayout, 100);
+    setTimeout(() => {
+        adjustLayout();
+        if (isStandalone()) {
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.height = '100vh';
+                container.style.maxHeight = '100vh';
+            }
+        }
+    }, 100);
+    
     window.addEventListener('resize', adjustLayout);
     
     console.log('✅ Juego inicializado correctamente');
@@ -520,74 +612,3 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-// ... (código anterior se mantiene igual) ...
-
-// ===========================================
-// DETECCIÓN MEJORADA DE PWA
-// ===========================================
-
-function isStandalone() {
-    // Métodos mejorados para detectar modo PWA
-    return (window.matchMedia('(display-mode: standalone)').matches) ||
-           (window.navigator.standalone === true) ||
-           (document.referrer.includes('android-app://')) ||
-           (window.location.search.includes('mode=standalone')) ||
-           (document.referrer.includes('utm_source=pwa'));
-}
-
-function applyPWAstyles() {
-    if (isStandalone()) {
-        document.body.classList.add('standalone');
-        console.log('📱 Modo PWA detectado - Aplicando estilos especiales');
-        
-        // Forzar un reflow para asegurar que los estilos se apliquen
-        document.body.offsetHeight;
-        
-        // Ajuste adicional del layout
-        setTimeout(() => {
-            adjustLayout();
-            // Asegurar que el contenedor ocupe toda la pantalla
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.height = '100vh';
-                container.style.maxHeight = '100vh';
-            }
-        }, 100);
-    }
-}
-
-// ===========================================
-// INICIALIZACIÓN MEJORADA
-// ===========================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 UNDERCOVER 88 - Inicializando...');
-    
-    // Aplicar estilos PWA inmediatamente
-    applyPWAstyles();
-    
-    // Cargar palabras para modo local
-    loadLocalWords();
-    
-    // Configurar event listeners básicos
-    setupEventListeners();
-    
-    // Ajustar layout inicial
-    setTimeout(() => {
-        adjustLayout();
-        // Ajuste adicional para PWA
-        if (isStandalone()) {
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.height = '100vh';
-                container.style.maxHeight = '100vh';
-            }
-        }
-    }, 100);
-    
-    window.addEventListener('resize', adjustLayout);
-    
-    console.log('✅ Juego inicializado correctamente');
-});
-
-// ... (el resto del código se mantiene igual) ...
