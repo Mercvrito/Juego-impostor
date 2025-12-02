@@ -32,8 +32,6 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
-// ... (otras rutas de favicon se mantienen igual) ...
-
 // ✅ RUTA PARA OBTENER PALABRAS (MEJORADA)
 app.get('/palabras', (req, res) => {
     try {
@@ -61,8 +59,6 @@ app.get('/service-worker.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
 });
-
-// ... (otras rutas se mantienen igual) ...
 
 // ✅ Ruta de fallback para SPA
 app.get('*', (req, res) => {
@@ -145,18 +141,19 @@ function getRandomWord(roomCode) {
 io.on('connection', (socket) => {
     console.log('✅ Usuario conectado:', socket.id);
 
-    // Crear nueva sala
-    socket.on('create-room', (playerName) => {
+    // Crear nueva sala con configuración
+    socket.on('create-room', (data) => {
         const roomCode = generateRoomCode();
         const room = {
             code: roomCode,
             players: [{
                 id: socket.id,
-                name: playerName,
+                name: data.playerName,
                 isHost: true
             }],
             currentWord: null,
-            impostorIndex: -1,
+            impostorIndexes: [],
+            impostorCount: data.impostorCount || 1, // Usar configuración del host
             roundNumber: 0,
             isGameActive: false
         };
@@ -167,7 +164,7 @@ io.on('connection', (socket) => {
         socket.emit('room-created', roomCode);
         io.to(roomCode).emit('players-updated', room.players);
         
-        console.log(`🎮 Sala creada: ${roomCode} por ${playerName}`);
+        console.log(`🎮 Sala creada: ${roomCode} por ${data.playerName} (${room.impostorCount} impostor(es))`);
     });
 
     // Unirse a sala existente
@@ -199,18 +196,29 @@ io.on('connection', (socket) => {
         
         socket.join(roomCode);
         io.to(roomCode).emit('players-updated', room.players);
-        socket.emit('joined-room', roomCode);
         
-        console.log(`👤 ${playerName} se unió a la sala ${roomCode}`);
+        // Enviar configuración de la sala al jugador que se une
+        socket.emit('joined-room', { 
+            roomCode: roomCode,
+            impostorCount: room.impostorCount
+        });
+        
+        console.log(`👤 ${playerName} se unió a la sala ${roomCode} (${room.impostorCount} impostor(es))`);
     });
 
     // Iniciar partida
     socket.on('start-game', (roomCode) => {
         const room = rooms.get(roomCode);
         if (room && room.players.length >= 2) {
+            // Verificar que haya suficientes jugadores para los impostores configurados
+            if (room.impostorCount >= room.players.length) {
+                socket.emit('error', `⚠️ Demasiados impostores para ${room.players.length} jugadores`);
+                return;
+            }
+            
             room.isGameActive = true;
             startNewRound(room);
-            console.log(`🎯 Partida iniciada en sala ${roomCode}`);
+            console.log(`🎯 Partida iniciada en sala ${roomCode} (${room.impostorCount} impostor(es))`);
         } else {
             socket.emit('error', '👥 Se necesitan al menos 2 jugadores para comenzar');
         }
@@ -267,22 +275,32 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Función para iniciar nueva ronda
+    // Función para iniciar nueva ronda con múltiples impostores
     function startNewRound(room) {
         room.currentWord = getRandomWord(room.code);
-        room.impostorIndex = Math.floor(Math.random() * room.players.length);
+        room.impostorIndexes = [];
+        
+        // Seleccionar múltiples impostores únicos
+        while (room.impostorIndexes.length < room.impostorCount) {
+            const randomIndex = Math.floor(Math.random() * room.players.length);
+            if (!room.impostorIndexes.includes(randomIndex)) {
+                room.impostorIndexes.push(randomIndex);
+            }
+        }
+        
         room.roundNumber++;
         
-        console.log(`🔄 Ronda ${room.roundNumber} - Palabra: ${room.currentWord} - Impostor: ${room.impostorIndex}`);
+        console.log(`🔄 Ronda ${room.roundNumber} - Palabra: ${room.currentWord} - Impostores: ${room.impostorIndexes.join(', ')}`);
         
         room.players.forEach((player, index) => {
-            const isImpostor = index === room.impostorIndex;
+            const isImpostor = room.impostorIndexes.includes(index);
             const word = isImpostor ? "IMPOSTOR" : room.currentWord;
             
             io.to(player.id).emit('round-started', {
                 roundNumber: room.roundNumber,
                 word: word,
                 isImpostor: isImpostor,
+                impostorCount: room.impostorCount, // Enviar número de impostores
                 players: room.players.map(p => ({
                     name: p.name,
                     isHost: p.isHost

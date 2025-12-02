@@ -172,6 +172,53 @@ body.standalone .fullscreen-btn {
     50% { opacity: 0.6; }
 }
 
+/* Botón de ajustes */
+.settings-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+    background: rgba(10, 10, 10, 0.8);
+    color: var(--retro-glow);
+    border: 2px solid var(--retro-glow);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    width: auto;
+    min-height: auto;
+}
+
+.settings-btn:hover {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+.settings-icon {
+    font-size: 1.2rem;
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ocultar el botón en PWA si hay otros botones */
+body.standalone .settings-btn {
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+}
+
 /* Botón de pantalla completa */
 .fullscreen-btn {
     position: fixed;
@@ -1052,11 +1099,19 @@ label {
         font-size: clamp(0.9rem, 3.5vw, 1.2rem) !important;
     }
     
-    .fullscreen-btn {
+    .fullscreen-btn,
+    .settings-btn {
         top: 6px;
-        right: 6px;
         padding: 4px 8px;
         font-size: 0.9rem;
+    }
+    
+    .fullscreen-btn {
+        right: 6px;
+    }
+    
+    .settings-btn {
+        left: 6px;
     }
     
     /* Pantalla de juego en móviles */
@@ -1272,7 +1327,6 @@ html, body {
         padding: 14px 12px !important;
     }
 }
-/* ... (todo el CSS anterior se mantiene igual) ... */
 
 /* ===========================================
    PANTALLA MODO LOCAL - CONFIGURACIÓN
@@ -1480,7 +1534,6 @@ html, body {
 #local-word-display:active {
     transform: scale(0.98);
 }
-/* Añadir al final del CSS existente */
 
 /* ===========================================
    MEJORAS PARA MODO LOCAL
@@ -1541,7 +1594,6 @@ html, body {
     pointer-events: all;
     transition: all 0.3s ease;
 }
-/* ... (código anterior se mantiene igual) ... */
 
 /* ===========================================
    CORRECCIONES ESPECÍFICAS PARA PWA
@@ -1797,5 +1849,202 @@ body.standalone .tube-glow {
         padding: 12px 10px;
         font-size: 13px;
         min-height: 45px;
+    }
+}
+
+/* ===========================================
+   PANTALLA DE AJUSTES
+   =========================================== */
+
+#settings-screen.active {
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 15px 10px;
+}
+
+.settings-section {
+    width: 100%;
+    background: #000;
+    border: 2px solid var(--retro-border);
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+}
+
+.settings-section h3 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--retro-glow);
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    border-bottom: 1px solid var(--retro-glow);
+    padding-bottom: 8px;
+}
+
+.impostor-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.impostor-option {
+    width: 100%;
+}
+
+.impostor-option input[type="radio"] {
+    display: none;
+}
+
+.retro-radio {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: linear-gradient(to right, #1a1a1a, #000);
+    border: 2px solid var(--retro-border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.retro-radio:hover {
+    background: linear-gradient(to right, #2a2a2a, #111);
+    border-color: var(--retro-glow);
+    transform: translateX(5px);
+}
+
+.retro-radio::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.retro-radio:hover::before {
+    left: 100%;
+}
+
+.radio-indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--retro-border);
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.radio-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--retro-glow);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+input[type="radio"]:checked + .retro-radio {
+    border-color: var(--retro-glow);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    background: linear-gradient(to right, #0a2a0a, #001100);
+}
+
+input[type="radio"]:checked + .retro-radio .radio-indicator {
+    border-color: var(--retro-glow);
+    box-shadow: 0 0 5px var(--retro-glow);
+}
+
+input[type="radio"]:checked + .retro-radio .radio-indicator::after {
+    opacity: 1;
+}
+
+.radio-label {
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    font-weight: bold;
+    color: var(--retro-white);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 4px var(--retro-glow);
+    flex: 1;
+}
+
+.settings-info {
+    background: #000;
+    border: 1px solid var(--retro-border);
+    padding: 12px;
+    margin: 10px 0;
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    line-height: 1.4;
+}
+
+.settings-info p {
+    color: var(--retro-glow);
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.settings-info ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.settings-info li {
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+    color: var(--retro-white);
+}
+
+.settings-info li::before {
+    content: '▶';
+    position: absolute;
+    left: 0;
+    color: var(--retro-glow);
+    font-size: 0.8rem;
+}
+
+#settings-screen .btn-container {
+    margin-top: 15px;
+    gap: 8px;
+}
+
+/* Correcciones para móviles en pantalla de ajustes */
+@media (max-width: 768px) {
+    #settings-screen.active {
+        padding: 10px 8px;
+        gap: 10px;
+    }
+    
+    .settings-section {
+        padding: 12px 10px;
+        margin-bottom: 12px;
+    }
+    
+    .retro-radio {
+        padding: 10px 12px;
+    }
+    
+    .radio-indicator {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+    }
+    
+    .radio-indicator::after {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .settings-info {
+        padding: 10px;
+        font-size: 0.8rem;
     }
 }

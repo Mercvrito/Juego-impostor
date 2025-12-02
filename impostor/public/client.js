@@ -12,10 +12,15 @@ let socket = null;
 let localPlayers = [];
 let currentLocalPlayerIndex = 0;
 let localCurrentWord = '';
-let localImpostorIndex = -1;
+let localImpostorIndexes = []; // Array para múltiples impostores
 let localRoundNumber = 1;
 let localWords = [];
 let localUsedWords = []; // Para evitar repeticiones en modo local
+
+// Configuración
+let settings = {
+    impostorCount: 1 // Valor por defecto
+};
 
 // Elementos DOM
 const screens = document.querySelectorAll('.screen');
@@ -82,11 +87,17 @@ function initializeSocket() {
         showScreen('lobby-screen');
     });
     
-    socket.on('joined-room', (code) => {
-        roomCode = code;
-        document.getElementById('room-code').textContent = code;
-        document.getElementById('game-room-code').textContent = code;
+    socket.on('joined-room', (data) => {
+        roomCode = data.roomCode;
+        document.getElementById('room-code').textContent = data.roomCode;
+        document.getElementById('game-room-code').textContent = data.roomCode;
         isHost = false;
+        
+        // Mostrar configuración de la sala
+        if (data.impostorCount) {
+            showAlert(`🎯 Esta sala tiene ${data.impostorCount} impostor(es) por ronda`, 3000);
+        }
+        
         showScreen('lobby-screen');
     });
     
@@ -113,12 +124,37 @@ function initializeSocket() {
         showScreen('game-screen');
         
         document.getElementById('host-controls').style.display = isHost ? 'flex' : 'none';
+        
+        // Mostrar información sobre el número de impostores
+        if (data.impostorCount) {
+            showAlert(`🎯 Esta ronda tiene ${data.impostorCount} impostor(es)`, 3000);
+        }
+    });
+    
+    socket.on('error', (message) => {
+        showAlert(message, 3000);
+    });
+    
+    socket.on('player-left', (message) => {
+        showAlert(message, 2000);
+    });
+    
+    socket.on('new-word-changed', (data) => {
+        showAlert(data.message, 2000);
+    });
+    
+    socket.on('disconnect', () => {
+        console.log('❌ Desconectado del servidor');
+        showAlert('🔌 Desconectado del servidor', 2000);
     });
 }
 
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
-    if (!hostName) return;
+    if (!hostName) {
+        showAlert('⚠️ Ingresa tu nombre', 2000);
+        return;
+    }
     
     if (!socket) {
         initializeSocket();
@@ -126,7 +162,10 @@ function createGame() {
     
     setTimeout(() => {
         if (socket && socket.connected) {
-            socket.emit('create-room', hostName);
+            socket.emit('create-room', { 
+                playerName: hostName, 
+                impostorCount: settings.impostorCount 
+            });
         }
     }, 100);
 }
@@ -135,7 +174,15 @@ function joinGame() {
     const playerName = document.getElementById('player-name').value.trim();
     const code = document.getElementById('room-code-input').value.trim();
     
-    if (!playerName || !code) return;
+    if (!playerName) {
+        showAlert('⚠️ Ingresa tu nombre', 2000);
+        return;
+    }
+    
+    if (!code || code.length !== 4) {
+        showAlert('⚠️ Ingresa un código de 4 dígitos', 2000);
+        return;
+    }
     
     if (!socket) {
         initializeSocket();
@@ -149,7 +196,10 @@ function joinGame() {
 }
 
 function startGame() {
-    if (!isHost || players.length < 2) return;
+    if (!isHost || players.length < 2) {
+        showAlert('👥 Se necesitan al menos 2 jugadores para comenzar', 2000);
+        return;
+    }
     if (socket && socket.connected) {
         socket.emit('start-game', roomCode);
     }
@@ -234,6 +284,42 @@ function updateGamePlayerList(playersList) {
         `;
         gamePlayerList.appendChild(li);
     });
+}
+
+// ===========================================
+// CONFIGURACIÓN
+// ===========================================
+
+function loadSettings() {
+    const savedSettings = localStorage.getItem('undercover88_settings');
+    if (savedSettings) {
+        settings = JSON.parse(savedSettings);
+        // Actualizar la selección en la pantalla de ajustes
+        const radioButton = document.querySelector(`input[name="impostor-count"][value="${settings.impostorCount}"]`);
+        if (radioButton) {
+            radioButton.checked = true;
+        }
+    }
+    console.log('⚙️ Configuración cargada:', settings);
+}
+
+function saveSettings() {
+    localStorage.setItem('undercover88_settings', JSON.stringify(settings));
+    console.log('💾 Configuración guardada:', settings);
+    showAlert('✅ Configuración guardada', 2000);
+}
+
+function showSettings() {
+    // Cargar configuración actual antes de mostrar
+    loadSettings();
+    showScreen('settings-screen');
+}
+
+function applySettings() {
+    const selectedValue = document.querySelector('input[name="impostor-count"]:checked').value;
+    settings.impostorCount = parseInt(selectedValue);
+    saveSettings();
+    showScreen('main-screen');
 }
 
 // ===========================================
@@ -373,6 +459,12 @@ function startLocalGame() {
     if (localPlayers.length < 2) {
         return;
     }
+    
+    // Validar que haya suficientes jugadores para los impostores seleccionados
+    if (settings.impostorCount >= localPlayers.length) {
+        showAlert('⚠️ Demasiados impostores para los jugadores disponibles', 3000);
+        return;
+    }
 
     // Reiniciar palabras usadas al comenzar nueva partida
     localUsedWords = [];
@@ -382,12 +474,24 @@ function startLocalGame() {
     generateLocalWord();
     showScreen('local-game-screen');
     displayLocalPlayer();
+    
+    // Mostrar información sobre impostores en modo local
+    showAlert(`🎯 Esta ronda tiene ${settings.impostorCount} impostor(es)`, 3000);
 }
 
 function generateLocalWord() {
     localCurrentWord = getLocalRandomWord();
-    localImpostorIndex = Math.floor(Math.random() * localPlayers.length);
-    console.log(`🎮 Ronda ${localRoundNumber} - Palabra: ${localCurrentWord} - Impostor: ${localImpostorIndex}`);
+    localImpostorIndexes = [];
+    
+    // Seleccionar múltiples impostores únicos
+    while (localImpostorIndexes.length < settings.impostorCount) {
+        const randomIndex = Math.floor(Math.random() * localPlayers.length);
+        if (!localImpostorIndexes.includes(randomIndex)) {
+            localImpostorIndexes.push(randomIndex);
+        }
+    }
+    
+    console.log(`🎮 Ronda ${localRoundNumber} - Palabra: ${localCurrentWord} - Impostores: ${localImpostorIndexes}`);
 }
 
 function displayLocalPlayer() {
@@ -421,7 +525,7 @@ function displayLocalPlayer() {
 }
 
 function revealLocalWord() {
-    const isImpostor = currentLocalPlayerIndex === localImpostorIndex;
+    const isImpostor = localImpostorIndexes.includes(currentLocalPlayerIndex);
     const word = isImpostor ? "IMPOSTOR" : localCurrentWord;
 
     const wordDisplay = document.getElementById('local-word-display');
@@ -452,8 +556,48 @@ function leaveLocalGame() {
 function resetLocalGame() {
     currentLocalPlayerIndex = 0;
     localCurrentWord = '';
-    localImpostorIndex = -1;
+    localImpostorIndexes = [];
     localRoundNumber = 1;
+}
+
+// ===========================================
+// UTILIDADES
+// ===========================================
+
+function showAlert(message, duration = 3000) {
+    // Eliminar alerta anterior si existe
+    const existingAlert = document.querySelector('.retro-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    // Crear alerta
+    const alert = document.createElement('div');
+    alert.className = 'retro-alert';
+    alert.innerHTML = `
+        <div class="retro-alert-message">${message}</div>
+        <button class="retro-alert-btn" onclick="this.parentElement.remove()">OK</button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Auto-eliminar después de la duración
+    if (duration > 0) {
+        setTimeout(() => {
+            if (alert.parentElement) {
+                alert.remove();
+            }
+        }, duration);
+    }
+    
+    // Añadir overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'alert-overlay';
+    overlay.onclick = () => {
+        alert.remove();
+        overlay.remove();
+    };
+    document.body.appendChild(overlay);
 }
 
 // ===========================================
@@ -521,6 +665,9 @@ function toggleFullscreen() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 UNDERCOVER 88 - Inicializando...');
     
+    // Cargar configuración
+    loadSettings();
+    
     // Aplicar estilos PWA inmediatamente
     applyPWAstyles();
     
@@ -548,6 +695,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
+    // Botón de ajustes
+    document.getElementById('settings-btn').addEventListener('click', showSettings);
+    
     // Botones principales
     document.getElementById('create-btn').addEventListener('click', () => showScreen('create-screen'));
     document.getElementById('join-btn').addEventListener('click', () => showScreen('join-screen'));
@@ -578,6 +728,10 @@ function setupEventListeners() {
     document.getElementById('next-player-btn').addEventListener('click', nextLocalPlayer);
     document.getElementById('new-word-local-btn').addEventListener('click', newLocalWord);
     document.getElementById('leave-local-game-btn').addEventListener('click', leaveLocalGame);
+
+    // Pantalla de ajustes
+    document.getElementById('save-settings-btn').addEventListener('click', applySettings);
+    document.getElementById('back-to-main-4').addEventListener('click', () => showScreen('main-screen'));
 
     // Pantalla completa
     document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);

@@ -25,6 +25,11 @@
         <div class="crinkle-effect"></div>
     </div>
 
+    <!-- Botón de ajustes -->
+    <button id="settings-btn" class="settings-btn" title="Ajustes">
+        <span class="settings-icon">⚙️</span>
+    </button>
+
     <button id="fullscreen-btn" class="fullscreen-btn" title="Pantalla completa">
         <span class="fullscreen-icon">⛶</span>
     </button>
@@ -178,6 +183,53 @@
                 <button id="next-player-btn" class="retro-btn" style="display: none;">SIGUIENTE JUGADOR</button>
                 <button id="new-word-local-btn" class="retro-btn" style="display: none;">SIGUIENTE NUEVA PALABRA</button>
                 <button id="leave-local-game-btn" class="retro-btn danger">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE AJUSTES -->
+        <div id="settings-screen" class="screen">
+            <div class="vignette"></div>
+            <h2>⚙️ AJUSTES</h2>
+            
+            <div class="settings-section">
+                <h3>IMPOSTORES POR PARTIDA</h3>
+                <div class="impostor-options">
+                    <div class="impostor-option">
+                        <input type="radio" id="impostor-1" name="impostor-count" value="1" checked>
+                        <label for="impostor-1" class="retro-radio">
+                            <span class="radio-indicator"></span>
+                            <span class="radio-label">1 IMPOSTOR</span>
+                        </label>
+                    </div>
+                    <div class="impostor-option">
+                        <input type="radio" id="impostor-2" name="impostor-count" value="2">
+                        <label for="impostor-2" class="retro-radio">
+                            <span class="radio-indicator"></span>
+                            <span class="radio-label">2 IMPOSTORES</span>
+                        </label>
+                    </div>
+                    <div class="impostor-option">
+                        <input type="radio" id="impostor-3" name="impostor-count" value="3">
+                        <label for="impostor-3" class="retro-radio">
+                            <span class="radio-indicator"></span>
+                            <span class="radio-label">3 IMPOSTORES</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-info">
+                <p>🔧 Esta configuración afectará:</p>
+                <ul>
+                    <li>✅ Partidas que crees (modo online)</li>
+                    <li>✅ Partidas a las que te unas (heredado del host)</li>
+                    <li>✅ Modo local</li>
+                </ul>
+            </div>
+            
+            <div class="btn-container">
+                <button id="save-settings-btn" class="retro-btn">GUARDAR CONFIGURACIÓN</button>
+                <button id="back-to-main-4" class="retro-btn danger">VOLVER</button>
             </div>
         </div>
     </div>
