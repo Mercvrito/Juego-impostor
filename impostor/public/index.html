@@ -25,9 +25,9 @@
         <div class="crinkle-effect"></div>
     </div>
 
-    <!-- Botón de ajustes -->
-    <button id="settings-btn" class="settings-btn" title="Ajustes">
-        <span class="settings-icon">⚙️</span>
+    <!-- Botón de ajustes retro -->
+    <button id="settings-btn" class="settings-btn" title="Configuración">
+        <span class="settings-icon">⚙</span>
     </button>
 
     <button id="fullscreen-btn" class="fullscreen-btn" title="Pantalla completa">
@@ -104,7 +104,7 @@
             </div>
             <div class="input-group">
                 <label for="room-code-input">CÓDIGO DE SALA:</label>
-                <input type="text" id="room-code-input" placeholder="INGRESA EL CÓDIGO" maxlength="4" class="retro-input">
+                    <input type="text" id="room-code-input" placeholder="INGRESA EL CÓDIGO" maxlength="4" class="retro-input">
             </div>
             <div class="btn-container">
                 <button id="join-game-btn" class="retro-btn">UNIRSE</button>
@@ -186,65 +186,34 @@
             </div>
         </div>
 
-        <!-- PANTALLA DE AJUSTES -->
+        <!-- PANTALLA DE AJUSTES MEJORADA -->
         <div id="settings-screen" class="screen">
             <div class="vignette"></div>
-            <h2>⚙️ AJUSTES</h2>
-            
-            <div class="settings-section">
-                <h3>IMPOSTORES POR PARTIDA</h3>
-                <div class="impostor-options">
-                    <div class="impostor-option">
-                        <input type="radio" id="impostor-1" name="impostor-count" value="1" checked>
-                        <label for="impostor-1" class="retro-radio">
-                            <span class="radio-indicator"></span>
-                            <span class="radio-label">1 IMPOSTOR</span>
-                        </label>
+            <div class="settings-container">
+                <h2>⚙ CONFIGURACIÓN</h2>
+                
+                <div class="settings-box">
+                    <div class="settings-item">
+                        <div class="settings-label">IMPOSTORES POR RONDA:</div>
+                        <div class="number-selector">
+                            <button class="number-btn minus" id="minus-btn">-</button>
+                            <div class="number-display" id="impostor-count">1</div>
+                            <button class="number-btn plus" id="plus-btn">+</button>
+                        </div>
+                        <div class="settings-hint" id="impostor-hint">1 impostor por partida</div>
                     </div>
-                    <div class="impostor-option">
-                        <input type="radio" id="impostor-2" name="impostor-count" value="2">
-                        <label for="impostor-2" class="retro-radio">
-                            <span class="radio-indicator"></span>
-                            <span class="radio-label">2 IMPOSTORES</span>
-                        </label>
-                    </div>
-                    <div class="impostor-option">
-                        <input type="radio" id="impostor-3" name="impostor-count" value="3">
-                        <label for="impostor-3" class="retro-radio">
-                            <span class="radio-indicator"></span>
-                            <span class="radio-label">3 IMPOSTORES</span>
-                        </label>
+                    
+                    <div class="settings-warning">
+                        <div class="warning-icon">⚠</div>
+                        <p>Esta configuración se aplica a todas las partidas que crees o te unas</p>
                     </div>
                 </div>
+                
+                <div class="btn-container">
+                    <button id="save-settings-btn" class="retro-btn">GUARDAR Y VOLVER</button>
+                    <button id="cancel-settings-btn" class="retro-btn danger">CANCELAR</button>
+                </div>
             </div>
-            
-            <div class="settings-info">
-                <p>🔧 Esta configuración afectará:</p>
-                <ul>
-                    <li>✅ Partidas que crees (modo online)</li>
-                    <li>✅ Partidas a las que te unas (heredado del host)</li>
-                    <li>✅ Modo local</li>
-                </ul>
-            </div>
-            
-            <div class="btn-container">
-                <button id="save-settings-btn" class="retro-btn">GUARDAR CONFIGURACIÓN</button>
-                <button id="back-to-main-4" class="retro-btn danger">VOLVER</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para iOS -->
-    <div id="ios-fullscreen-modal" class="modal">
-        <div class="modal-content">
-            <h3>📱 Pantalla Completa en iOS</h3>
-            <p>Para disfrutar de la experiencia completa:</p>
-            <ol>
-                <li>Toca el botón <strong>Compartir</strong> 📤</li>
-                <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong></li>
-                <li>¡Listo! La app se abrirá en pantalla completa</li>
-            </ol>
-            <button id="close-modal-btn" class="retro-btn">ENTENDIDO</button>
         </div>
     </div>
 

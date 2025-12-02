@@ -2048,3 +2048,377 @@ input[type="radio"]:checked + .retro-radio .radio-indicator::after {
         font-size: 0.8rem;
     }
 }
+
+/* ===========================================
+   BOTÓN DE AJUSTES MEJORADO
+   =========================================== */
+
+.settings-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+    background: #000;
+    color: var(--retro-white);
+    border: 2px solid var(--retro-border);
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 8px rgba(0, 255, 0, 0.1),
+        inset 0 0 8px rgba(0, 255, 0, 0.05);
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 3px var(--retro-glow);
+}
+
+.settings-btn:hover {
+    background: #111;
+    border-color: var(--retro-glow);
+    box-shadow: 
+        0 0 12px rgba(0, 255, 0, 0.3),
+        inset 0 0 10px rgba(0, 255, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.settings-btn:active {
+    transform: translateY(0);
+    box-shadow: 
+        0 0 6px rgba(0, 255, 0, 0.2),
+        inset 0 0 6px rgba(0, 255, 0, 0.08);
+}
+
+/* Ocultar en PWA */
+body.standalone .settings-btn {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+}
+
+/* ===========================================
+   PANTALLA DE AJUSTES MEJORADA
+   =========================================== */
+
+#settings-screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    gap: 0;
+}
+
+.settings-container {
+    width: 100%;
+    max-width: 320px;
+    background: #000;
+    border: 2px solid var(--retro-border);
+    padding: 20px;
+    box-shadow: 
+        inset 0 0 15px rgba(0, 255, 0, 0.1),
+        0 0 20px rgba(0, 255, 0, 0.2);
+    position: relative;
+    animation: crtOn 0.4s ease-out;
+}
+
+.settings-container h2 {
+    text-align: center;
+    color: var(--retro-white);
+    font-size: clamp(1.2rem, 4vw, 1.4rem);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--retro-border);
+    text-shadow: 0 0 6px var(--retro-glow);
+}
+
+.settings-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(10, 10, 10, 0.7);
+    border: 1px solid var(--retro-border);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.settings-item {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.settings-label {
+    color: var(--retro-white);
+    font-size: clamp(0.9rem, 3.5vw, 1rem);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 4px var(--retro-glow);
+    font-weight: bold;
+}
+
+.number-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.number-btn {
+    background: #111;
+    color: var(--retro-white);
+    border: 2px solid var(--retro-border);
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 3px var(--retro-glow);
+}
+
+.number-btn:hover {
+    background: #222;
+    border-color: var(--retro-glow);
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+
+.number-btn:active {
+    transform: scale(0.95);
+}
+
+.number-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #444;
+}
+
+.number-btn:disabled:hover {
+    background: #111;
+    border-color: #444;
+    box-shadow: none;
+}
+
+.number-display {
+    background: #000;
+    color: var(--retro-glow);
+    border: 2px solid var(--retro-glow);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 8px var(--retro-glow);
+    box-shadow: 
+        inset 0 0 10px rgba(0, 255, 0, 0.2),
+        0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.settings-hint {
+    color: var(--retro-white);
+    font-size: 0.85rem;
+    margin-top: 8px;
+    opacity: 0.8;
+    text-align: center;
+    font-style: italic;
+}
+
+.settings-warning {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid var(--retro-secondary);
+    padding: 10px;
+    margin-top: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.warning-icon {
+    color: var(--retro-secondary);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    text-shadow: 0 0 6px rgba(255, 68, 68, 0.5);
+}
+
+.settings-warning p {
+    color: var(--retro-white);
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin: 0;
+    text-shadow: 0 0 3px rgba(255, 68, 68, 0.3);
+}
+
+#settings-screen .btn-container {
+    margin-top: 20px;
+    gap: 10px;
+}
+
+#settings-screen .retro-btn {
+    min-height: 45px;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+/* ===========================================
+   ANIMACIONES ESPECIALES
+   =========================================== */
+
+@keyframes pulseGlow {
+    0%, 100% { 
+        box-shadow: 
+            inset 0 0 10px rgba(0, 255, 0, 0.2),
+            0 0 10px rgba(0, 255, 0, 0.2);
+    }
+    50% { 
+        box-shadow: 
+            inset 0 0 15px rgba(0, 255, 0, 0.3),
+            0 0 15px rgba(0, 255, 0, 0.3);
+    }
+}
+
+.number-display {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* ===========================================
+   AJUSTES RESPONSIVOS
+   =========================================== */
+
+@media (max-width: 768px) {
+    .settings-btn {
+        top: 8px;
+        left: 8px;
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+    
+    #settings-screen.active {
+        padding: 10px;
+    }
+    
+    .settings-container {
+        padding: 15px;
+        max-width: 280px;
+    }
+    
+    .settings-box {
+        padding: 12px;
+    }
+    
+    .number-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1.3rem;
+    }
+    
+    .number-display {
+        width: 44px;
+        height: 44px;
+        font-size: 1.6rem;
+    }
+    
+    .settings-label {
+        font-size: 0.9rem;
+    }
+    
+    .settings-hint {
+        font-size: 0.8rem;
+    }
+    
+    .settings-warning {
+        padding: 8px;
+    }
+    
+    .settings-warning p {
+        font-size: 0.75rem;
+    }
+    
+    #settings-screen .retro-btn {
+        min-height: 42px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 320px) {
+    .settings-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+    }
+    
+    .settings-container {
+        padding: 12px;
+        max-width: 260px;
+    }
+    
+    .number-selector {
+        gap: 8px;
+    }
+    
+    .number-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+    
+    .number-display {
+        width: 40px;
+        height: 40px;
+        font-size: 1.4rem;
+    }
+}
+
+/* ===========================================
+   CORRECCIONES DE VISIBILIDAD EN PWA
+   =========================================== */
+
+body.standalone .settings-container {
+    border: 3px solid var(--retro-border);
+    box-shadow: 
+        inset 0 0 20px rgba(0, 255, 0, 0.15),
+        0 0 25px rgba(0, 255, 0, 0.25);
+}
+
+body.standalone .number-display {
+    box-shadow: 
+        inset 0 0 15px rgba(0, 255, 0, 0.25),
+        0 0 15px rgba(0, 255, 0, 0.25);
+}
+
+/* ===========================================
+   ESTADOS DE LOS CONTROLES
+   =========================================== */
+
+.number-btn.minus:hover {
+    border-color: var(--retro-secondary);
+    color: var(--retro-secondary);
+}
+
+.number-btn.plus:hover {
+    border-color: var(--retro-glow);
+    color: var(--retro-glow);
+}
+
+.settings-container::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    pointer-events: none;
+}
