@@ -82,7 +82,6 @@ function loadSettings() {
 function saveSettings() {
     localStorage.setItem('undercover88_settings', JSON.stringify(settings));
     console.log('💾 Configuración guardada:', settings);
-    showAlert('✅ Configuración guardada', 1500);
 }
 
 function updateImpostorUI() {
@@ -140,10 +139,7 @@ function initializeSocket() {
         document.getElementById('game-room-code').textContent = data.roomCode;
         isHost = false;
         
-        if (data.impostorCount) {
-            showAlert(`🎯 Esta sala tiene ${data.impostorCount} impostor(es) por ronda`, 3000);
-        }
-        
+        // SIN NOTIFICACIÓN
         showScreen('lobby-screen');
     });
     
@@ -171,33 +167,34 @@ function initializeSocket() {
         
         document.getElementById('host-controls').style.display = isHost ? 'flex' : 'none';
         
-        if (data.impostorCount) {
-            showAlert(`🎯 Esta ronda tiene ${data.impostorCount} impostor(es)`, 3000);
-        }
+        // SIN NOTIFICACIÓN
     });
     
     socket.on('error', (message) => {
-        showAlert(message, 3000);
+        console.log('❌ Error:', message);
+        // SIN NOTIFICACIÓN
     });
     
     socket.on('player-left', (message) => {
-        showAlert(message, 2000);
+        console.log('👤 Jugador salió:', message);
+        // SIN NOTIFICACIÓN
     });
     
     socket.on('new-word-changed', (data) => {
-        showAlert(data.message, 2000);
+        console.log('🔤 Nueva palabra:', data.message);
+        // SIN NOTIFICACIÓN
     });
     
     socket.on('disconnect', () => {
         console.log('❌ Desconectado del servidor');
-        showAlert('🔌 Desconectado del servidor', 2000);
+        // SIN NOTIFICACIÓN
     });
 }
 
 function createGame() {
     const hostName = document.getElementById('host-name').value.trim();
     if (!hostName) {
-        showAlert('⚠️ Ingresa tu nombre', 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
     
@@ -220,12 +217,12 @@ function joinGame() {
     const code = document.getElementById('room-code-input').value.trim();
     
     if (!playerName) {
-        showAlert('⚠️ Ingresa tu nombre', 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
     
     if (!code || code.length !== 4) {
-        showAlert('⚠️ Ingresa un código de 4 dígitos', 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
     
@@ -242,7 +239,7 @@ function joinGame() {
 
 function startGame() {
     if (!isHost || players.length < 2) {
-        showAlert('👥 Se necesitan al menos 2 jugadores para comenzar', 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
     if (socket && socket.connected) {
@@ -455,12 +452,12 @@ function removeLocalPlayer(index) {
 
 function startLocalGame() {
     if (localPlayers.length < 2) {
-        showAlert('⚠️ Se necesitan al menos 2 jugadores', 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
     
     if (settings.impostorCount >= localPlayers.length) {
-        showAlert(`⚠️ Demasiados impostores para ${localPlayers.length} jugadores`, 2000);
+        // SIN NOTIFICACIÓN
         return;
     }
 
@@ -470,8 +467,6 @@ function startLocalGame() {
     generateLocalWord();
     showScreen('local-game-screen');
     displayLocalPlayer();
-    
-    showAlert(`🎯 Esta ronda tiene ${settings.impostorCount} impostor(es)`, 3000);
 }
 
 function generateLocalWord() {
@@ -553,42 +548,6 @@ function resetLocalGame() {
 }
 
 // ===========================================
-// UTILIDADES
-// ===========================================
-
-function showAlert(message, duration = 3000) {
-    const existingAlert = document.querySelector('.retro-alert');
-    if (existingAlert) {
-        existingAlert.remove();
-    }
-    
-    const alert = document.createElement('div');
-    alert.className = 'retro-alert';
-    alert.innerHTML = `
-        <div class="retro-alert-message">${message}</div>
-        <button class="retro-alert-btn" onclick="this.parentElement.remove()">OK</button>
-    `;
-    
-    document.body.appendChild(alert);
-    
-    if (duration > 0) {
-        setTimeout(() => {
-            if (alert.parentElement) {
-                alert.remove();
-            }
-        }, duration);
-    }
-    
-    const overlay = document.createElement('div');
-    overlay.className = 'alert-overlay';
-    overlay.onclick = () => {
-        alert.remove();
-        overlay.remove();
-    };
-    document.body.appendChild(overlay);
-}
-
-// ===========================================
 // DETECCIÓN DE PWA
 // ===========================================
 
@@ -624,7 +583,7 @@ function toggleFullscreen() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
     if (isIOS) {
-        document.getElementById('ios-fullscreen-modal').style.display = 'flex';
+        // SIN MODAL DE iOS
         return;
     }
 
@@ -731,12 +690,6 @@ function setupEventListeners() {
 
     // Pantalla completa
     document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            document.getElementById('ios-fullscreen-modal').style.display = 'none';
-        });
-    }
 
     // Enter en inputs
     document.getElementById('host-name').addEventListener('keypress', (e) => {
