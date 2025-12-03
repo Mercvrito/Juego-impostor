@@ -9,6 +9,9 @@ const urlsToCache = [
   '/icon-512.png'
 ];
 
+// ===========================================
+// INSTALL
+// ===========================================
 self.addEventListener('install', (event) => {
   console.log('🔄 Service Worker instalando...');
   event.waitUntil(
@@ -27,6 +30,9 @@ self.addEventListener('install', (event) => {
   );
 });
 
+// ===========================================
+// ACTIVATE
+// ===========================================
 self.addEventListener('activate', (event) => {
   console.log('🔄 Service Worker activando...');
   event.waitUntil(
@@ -46,12 +52,55 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// ===========================================
+// FETCH
+// ===========================================
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Devuelve el recurso cacheado o haz la petición
-        return response || fetch(event.request);
+        // Devuelve el recurso cacheado si existe
+        if (response) return response;
+
+        // Intenta hacer la petición de red
+        return fetch(event.request)
+          .catch(() => {
+            // Si falla la petición (offline), devuelve un fallback
+            if (event.request.destination === 'document') {
+              return new Response(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Undercover 88</title>
+                  <style>
+                    body {
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      height: 100vh;
+                      margin: 0;
+                      font-family: sans-serif;
+                      background-color: #1c1c1c;
+                      color: #fff;
+                      text-align: center;
+                    }
+                    h1 {
+                      font-size: 3rem;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <h1>Undercover 88</h1>
+                  <p>Estás offline o el recurso no está disponible.</p>
+                </body>
+                </html>
+              `, { headers: { 'Content-Type': 'text/html' } });
+            }
+            // Si no es un documento, solo devuelve un fallo
+            return new Response('', { status: 404, statusText: 'Not Found' });
+          });
       })
   );
 });
