@@ -517,7 +517,14 @@ function revealLocalWord() {
 
     const wordDisplay = document.getElementById('local-word-display');
     wordDisplay.textContent = word;
-    wordDisplay.className = isImpostor ? 'word-display local-impostor' : 'word-display local-normal';
+    
+    // CAMBIO IMPORTANTE: Usar la misma clase 'impostor' que en modo online (rojo)
+    if (isImpostor) {
+        wordDisplay.className = 'word-display impostor';
+    } else {
+        wordDisplay.className = 'word-display local-normal';
+    }
+    
     wordDisplay.style.cursor = 'default';
     wordDisplay.onclick = null;
 

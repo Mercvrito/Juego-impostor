@@ -32,6 +32,15 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
 });
 
+// ✅ RUTAS PARA SEO
+app.get('/robots.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
 // ✅ RUTA PARA OBTENER PALABRAS (MEJORADA)
 app.get('/palabras', (req, res) => {
     try {
@@ -320,5 +329,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`📱 PWA habilitada: /manifest.json`);
     console.log(`⚙️ Service Worker: /service-worker.js`);
     console.log(`🎯 Favicon disponible: /favicon.png`);
+    console.log(`🤖 SEO optimizado: /robots.txt, /sitemap.xml`);
     console.log(`📁 Archivos estáticos en: ${path.join(__dirname, 'public')}`);
 });
