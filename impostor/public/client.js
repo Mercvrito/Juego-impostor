@@ -492,7 +492,7 @@ function displayLocalPlayer() {
         const playerName = localPlayers[currentLocalPlayerIndex];
         document.getElementById('local-current-player').textContent = playerName;
         document.getElementById('local-word-display').textContent = 'TOCA PARA VER PALABRA';
-        document.getElementById('local-word-display').className = 'word-display local-normal';
+        document.getElementById('local-word-display').className = 'word-display';
         document.getElementById('local-word-display').style.cursor = 'pointer';
         document.getElementById('local-word-display').onclick = revealLocalWord;
 
@@ -501,7 +501,7 @@ function displayLocalPlayer() {
     } else {
         document.getElementById('local-current-player').textContent = 'RONDA TERMINADA';
         document.getElementById('local-word-display').textContent = 'TODOS HAN VISTO SUS PALABRAS';
-        document.getElementById('local-word-display').className = 'word-display local-normal';
+        document.getElementById('local-word-display').className = 'word-display';
         document.getElementById('local-word-display').style.cursor = 'default';
         document.getElementById('local-word-display').onclick = null;
         
@@ -518,11 +518,11 @@ function revealLocalWord() {
     const wordDisplay = document.getElementById('local-word-display');
     wordDisplay.textContent = word;
     
-    // CAMBIO IMPORTANTE: Usar la misma clase 'impostor' que en modo online (rojo)
+    // USAR LA MISMA CLASE 'impostor' PARA QUE SEA ROJO
     if (isImpostor) {
         wordDisplay.className = 'word-display impostor';
     } else {
-        wordDisplay.className = 'word-display local-normal';
+        wordDisplay.className = 'word-display';
     }
     
     wordDisplay.style.cursor = 'default';
@@ -583,14 +583,14 @@ function applyPWAstyles() {
 }
 
 // ===========================================
-// PANTALLA COMPLETA
+// PANTALLA COMPLETA CON MODAL RETRO PARA iOS
 // ===========================================
 
 function toggleFullscreen() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
     if (isIOS) {
-        // SIN MODAL DE iOS
+        showIOSInstructions();
         return;
     }
 
@@ -607,6 +607,352 @@ function toggleFullscreen() {
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
         }
+    }
+}
+
+function showIOSInstructions() {
+    // Crear modal con estilo retro del juego
+    const modal = document.createElement('div');
+    modal.id = 'ios-modal';
+    modal.innerHTML = `
+        <div class="ios-modal-overlay">
+            <div class="ios-modal-content">
+                <div class="ios-modal-header">
+                    <h2>📱 PANTALLA COMPLETA EN iOS</h2>
+                    <div class="static-noise"></div>
+                </div>
+                
+                <div class="ios-modal-body">
+                    <div class="ios-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <span class="step-title">TOCA EL BOTÓN "COMPARTIR"</span>
+                            <span class="step-desc">(Icono de caja con flecha hacia arriba)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ios-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <span class="step-title">DESPLÁZATE HACIA ABAJO</span>
+                            <span class="step-desc">Hasta encontrar "Añadir a pantalla de inicio"</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ios-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <span class="step-title">TOCA "AÑADIR"</span>
+                            <span class="step-desc">En la esquina superior derecha</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ios-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <span class="step-title">¡LISTO!</span>
+                            <span class="step-desc">Abre la app desde tu pantalla de inicio para jugar en pantalla completa</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ios-tip">
+                        <span class="tip-icon">💡</span>
+                        <p>Como app instalada, UNDERCOVER '88 funcionará en pantalla completa sin barras del navegador.</p>
+                    </div>
+                </div>
+                
+                <div class="ios-modal-footer">
+                    <button class="retro-btn" onclick="closeIOSModal()">ENTENDIDO</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Añadir estilos si no existen
+    if (!document.querySelector('#ios-modal-styles')) {
+        const style = document.createElement('style');
+        style.id = 'ios-modal-styles';
+        style.textContent = `
+            #ios-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                font-family: 'Courier New', 'VT323', monospace;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            #ios-modal * {
+                box-sizing: border-box;
+            }
+            
+            .ios-modal-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(5px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            
+            .ios-modal-content {
+                background: var(--retro-dark);
+                border: 3px solid var(--retro-border);
+                max-width: 500px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+                box-shadow: 
+                    0 0 30px rgba(0, 255, 0, 0.3),
+                    inset 0 0 20px rgba(0, 255, 0, 0.1);
+                animation: crtOn 0.5s ease-out;
+            }
+            
+            .ios-modal-content::before {
+                content: '';
+                position: absolute;
+                top: 3px;
+                left: 3px;
+                right: 3px;
+                bottom: 3px;
+                border: 1px solid rgba(0, 255, 0, 0.3);
+                pointer-events: none;
+            }
+            
+            .ios-modal-header {
+                background: #000;
+                padding: 20px;
+                border-bottom: 2px solid var(--retro-border);
+                text-align: center;
+                position: relative;
+            }
+            
+            .ios-modal-header h2 {
+                color: var(--retro-white);
+                margin: 0;
+                font-size: 1.4rem;
+                text-shadow: 0 0 8px var(--retro-glow);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: bold;
+            }
+            
+            .ios-modal-header .static-noise {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0, 255, 0, 0.05) 100%);
+                animation: static 0.1s infinite;
+                pointer-events: none;
+            }
+            
+            .ios-modal-body {
+                padding: 20px;
+            }
+            
+            .ios-step {
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 20px;
+                padding: 15px;
+                background: linear-gradient(to right, #1a1a1a, #000);
+                border: 1px solid var(--retro-border);
+                position: relative;
+                transition: all 0.3s ease;
+            }
+            
+            .ios-step:hover {
+                background: linear-gradient(to right, #2a2a2a, #111);
+                border-color: var(--retro-glow);
+                transform: translateX(3px);
+            }
+            
+            .step-number {
+                background: var(--retro-secondary);
+                color: var(--retro-white);
+                width: 35px;
+                height: 35px;
+                min-width: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 1.2rem;
+                border: 2px solid var(--retro-white);
+                text-shadow: 1px 1px 0px #000;
+                font-family: 'VT323', monospace;
+            }
+            
+            .step-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .step-title {
+                color: var(--retro-glow);
+                font-size: 1rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 4px var(--retro-glow);
+                line-height: 1.2;
+            }
+            
+            .step-desc {
+                color: var(--retro-white);
+                font-size: 0.9rem;
+                opacity: 0.9;
+                line-height: 1.4;
+            }
+            
+            .ios-tip {
+                background: rgba(0, 255, 0, 0.1);
+                border: 1px solid var(--retro-glow);
+                padding: 15px;
+                margin-top: 20px;
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                animation: pulseGlow 2s infinite ease-in-out;
+            }
+            
+            .tip-icon {
+                font-size: 1.5rem;
+                flex-shrink: 0;
+                color: var(--retro-glow);
+                text-shadow: 0 0 8px var(--retro-glow);
+            }
+            
+            .ios-tip p {
+                color: var(--retro-white);
+                margin: 0;
+                font-size: 0.9rem;
+                line-height: 1.5;
+                text-shadow: 0 0 4px var(--retro-glow);
+            }
+            
+            .ios-modal-footer {
+                padding: 20px;
+                border-top: 2px solid var(--retro-border);
+                background: rgba(0, 0, 0, 0.7);
+                text-align: center;
+            }
+            
+            .ios-modal-footer .retro-btn {
+                max-width: 200px;
+                margin: 0 auto;
+                min-height: 45px;
+                font-size: 1rem;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes pulseGlow {
+                0%, 100% { 
+                    box-shadow: 
+                        inset 0 0 10px rgba(0, 255, 0, 0.2),
+                        0 0 10px rgba(0, 255, 0, 0.2);
+                }
+                50% { 
+                    box-shadow: 
+                        inset 0 0 15px rgba(0, 255, 0, 0.3),
+                        0 0 15px rgba(0, 255, 0, 0.3);
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .ios-modal-overlay {
+                    padding: 10px;
+                }
+                
+                .ios-modal-content {
+                    margin: 10px;
+                    max-height: 85vh;
+                }
+                
+                .ios-modal-header h2 {
+                    font-size: 1.1rem;
+                }
+                
+                .ios-step {
+                    padding: 12px;
+                    margin-bottom: 15px;
+                }
+                
+                .step-number {
+                    width: 30px;
+                    height: 30px;
+                    min-width: 30px;
+                    font-size: 1rem;
+                }
+                
+                .step-title {
+                    font-size: 0.9rem;
+                }
+                
+                .step-desc {
+                    font-size: 0.8rem;
+                }
+                
+                .ios-tip p {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .ios-modal-overlay {
+                    padding: 5px;
+                }
+                
+                .ios-step {
+                    flex-direction: column;
+                    gap: 10px;
+                    text-align: center;
+                }
+                
+                .step-number {
+                    margin: 0 auto;
+                }
+                
+                .ios-modal-header {
+                    padding: 15px;
+                }
+                
+                .ios-modal-body {
+                    padding: 15px;
+                }
+                
+                .ios-modal-footer {
+                    padding: 15px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function closeIOSModal() {
+    const modal = document.getElementById('ios-modal');
+    if (modal) {
+        modal.remove();
     }
 }
 
