@@ -1,35 +1,31 @@
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /private/
 
 Sitemap: https://juego-impostor.onrender.com/sitemap.xml
 
-# SEO Directives
-Crawl-delay: 1
-Visit-time: 0000-2400
-
-# Search engines
+# Googlebot específico
 User-agent: Googlebot
 Allow: /
 Disallow: /admin/
+Disallow: /private/
 
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+
+# Otros motores de búsqueda
 User-agent: Bingbot
 Allow: /
 Disallow: /admin/
+Disallow: /private/
 
 User-agent: Slurp
 Allow: /
 Disallow: /admin/
+Disallow: /private/
 
 User-agent: DuckDuckBot
 Allow: /
 Disallow: /admin/
-
-User-agent: Baiduspider
-Allow: /
-Disallow: /admin/
-
-User-agent: YandexBot
-Allow: /
-Disallow: /admin/
+Disallow: /private/
